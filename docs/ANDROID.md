@@ -45,7 +45,7 @@ El paquete usa Android 7 o posterior según los requisitos de Expo SDK 55. El id
 
 ## Actualizar una instalación
 
-Esta versión cambia el nombre visible a **Yoru** y el icono. Recompila el APK y actualiza la instalación para verlos en el lanzador; cambiar solo el JavaScript en Expo Go no modifica el icono del teléfono. Se conserva `com.bolsillo.gastos`, el slug `bolsillo` y la clave local anterior para mantener la continuidad de la app y sus datos. El `android.versionCode` de esta entrega es 3.
+Esta versión cambia el nombre visible a **Yoru** y el icono. Recompila el APK y actualiza la instalación para verlos en el lanzador; cambiar solo el JavaScript en Expo Go no modifica el icono del teléfono. Se conserva `com.bolsillo.gastos`, el slug `bolsillo` y la clave local anterior para mantener la continuidad de la app y sus datos. El `android.versionCode` de esta entrega es 4 (versión 1.3.1), con selector de fecha de gasto y navegación redondeada.
 
 Mantén el `android.package`, el proyecto EAS y la firma. Incrementa `android.versionCode` en `app.json`, vuelve a compilar con `preview` e instala el nuevo APK sobre el anterior. No desinstales para actualizar si quieres conservar los datos. Cambiar de firma, borrar datos o desinstalar elimina o impide conservar esa instalación.
 

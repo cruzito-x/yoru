@@ -1,6 +1,6 @@
-export type ThemeMode = 'light' | 'dark' | 'system';
-export type HistoryPeriod = 'day' | 'week' | 'month' | 'year';
-export type Tab = 'dashboard' | 'history' | 'settings';
+export type ThemeMode = "light" | "dark" | "system";
+export type HistoryPeriod = "day" | "week" | "month" | "year";
+export type Tab = "dashboard" | "history" | "settings";
 
 export interface Category {
   id: string;
@@ -28,7 +28,7 @@ export interface AnnualBonus {
   amountCents: number;
 }
 
-export type PaymentDay = number | 'last';
+export type PaymentDay = number | "last";
 
 export interface PaymentSchedule {
   first: PaymentDay;
@@ -38,7 +38,7 @@ export interface PaymentSchedule {
 export interface ScheduledPayment {
   nominalDate: string; // Día habitual antes de ajustar el fin de semana.
   paymentDate: string; // Día real de cobro.
-  slot: 'first' | 'second';
+  slot: "first" | "second";
 }
 
 export interface BudgetState {

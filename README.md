@@ -2,7 +2,7 @@
 
 Aplicación de gestión de gastos hecha con **React Native, Expo y TypeScript**. El código está organizado para que un desarrollador Junior pueda seguir el recorrido de los datos sin necesitar Redux, un backend ni un sistema complejo de navegación.
 
-La versión **1.3.0** adopta el nombre **Yoru** y el logo suministrado, editado a azul marino sin el destello superior. Actualiza el icono de Android, la imagen de inicio, el favicon y los encabezados de las tres vistas. También conserva el azul marino, permite configurar **dos días de pago por mes** y calcula automáticamente los próximos cobros. Si caen sábado o domingo, los adelanta al viernes. Incluye un perfil para generar un APK de Android. El calendario organiza cada semana en siete columnas fijas de lunes a domingo, para mantener todos los días visibles incluso en pantallas estrechas.
+La versión **1.3.1** añade un selector de fecha para crear y editar gastos con `@amjed-bouhouch/react-native-ui-datepicker` y redondea el fondo activo y pulsado del menú inferior. El calendario de gastos usa una sola fecha, español, domingos visibles, días adyacentes atenuados y flechas a la derecha; los colores se adaptan al tema global. La versión 1.3.0 adopta el nombre **Yoru** y el logo suministrado, editado a azul marino sin el destello superior. Actualiza el icono de Android, la imagen de inicio, el favicon y los encabezados de las tres vistas. También conserva el azul marino, permite configurar **dos días de pago por mes** y calcula automáticamente los próximos cobros. Si caen sábado o domingo, los adelanta al viernes. Incluye un perfil para generar un APK de Android. El calendario organiza cada semana en siete columnas fijas de lunes a domingo, para mantener todos los días visibles incluso en pantallas estrechas.
 
 ## Ejecutar
 
@@ -34,7 +34,7 @@ El ZIP contiene el código fuente, no un APK. Para instalarla como app independi
 | Historial | Consultar día, semana, mes o año; navegar entre períodos o introducir una fecha; ver gastos agrupados por día y editarlos. |
 | Ajustes | Configurar sueldo quincenal, configurar dos días recurrentes de pago y ver las fechas reales en el calendario, registrar aguinaldo en diciembre y elegir tema claro, oscuro o automático. |
 
-Un menú inferior mantiene las tres vistas accesibles. Cada gasto guarda nombre, monto, categoría, fecha y nota opcional. Para editarlo, toca su fila. Para eliminarlo, abre la edición y confirma la eliminación.
+Un menú inferior mantiene las tres vistas accesibles. Cada gasto guarda nombre, monto, categoría, fecha y nota opcional. En el formulario, toca **Fecha del gasto**, navega con las flechas o los selectores de mes/año y toca un día. Elegir la fecha no guarda el gasto: confirma con **Guardar gasto**. Para editarlo, toca su fila. Para eliminarlo, abre la edición y confirma la eliminación.
 
 El sueldo inicial es **$300 por quincena**, editable. Se incluyen cuatro categorías vacías; no se cargan gastos personales ni pagos ficticios.
 
@@ -49,6 +49,8 @@ El sueldo inicial es **$300 por quincena**, editable. Se incluyen cuatro categor
 | `App.tsx` | Conecta los proveedores, las pantallas y el menú inferior; muestra errores de carga/guardado. |
 | `src/screens/` | Una pantalla por vista: `DashboardScreen`, `HistoryScreen`, `SettingsScreen`. |
 | `src/components/` | Componentes reutilizables: dona, categorías, filas de gastos, formularios, botones, campos, modales y calendario. |
+| `src/components/ExpenseDatePicker.tsx` | Selector de fecha para gastos; encapsula la dependencia, el tema y la conversión a fecha local. |
+| `docs/SELECTOR_FECHA.md` | Uso del calendario, recorrido del código y comprobaciones manuales. |
 | `src/components/Calendar.tsx` | Cuadrícula de meses: permite elegir días habituales y marca los cobros reales, incluidos los adelantados al viernes. |
 | `src/components/PaymentScheduleCard.tsx` | Selecciona dos días habituales, guarda la regla y muestra los siguientes seis cobros. |
 | `src/components/AnnualBonusCard.tsx` | Habilita el monto de aguinaldo en diciembre y actualiza el registro del año. |

@@ -1,4 +1,4 @@
-# Identidad Yoru · versión 1.3.0
+# Identidad Yoru · versión 1.3.1
 
 **Yoru** es el nombre elegido para la dirección japonesa y Y2K solicitada. La palabra de marca se presenta como **YORU**, con letras separadas y el emblema original.
 
@@ -23,7 +23,7 @@ Se utilizó la herramienta integrada de generación y edición de imágenes. La 
 
 ## Configuración y compatibilidad
 
-El nombre visible y el texto de marca están en `src/config/brand.ts`; el nombre del lanzador está en `app.json`, en `expo.name`. La versión es 1.3.0 y `android.versionCode` es 3.
+El nombre visible y el texto de marca están en `src/config/brand.ts`; el nombre del lanzador está en `app.json`, en `expo.name`. La versión es 1.3.1 y `android.versionCode` es 4. Esta entrega conserva la identidad introducida en 1.3.0.
 
 Se conserva el identificador Android `com.bolsillo.gastos`, el slug Expo `bolsillo` y la clave de AsyncStorage `@bolsillo/budget-v1`. Son identificadores de continuidad, no el nombre que aparece en la app. El formato de datos sigue siendo versión 3; no se modifica ningún gasto ni ajuste por el cambio de marca.
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Yoru",
     "slug": "bolsillo",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.bolsillo.gastos",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#FFFDF7",
         "foregroundImage": "./assets/android-icon-foreground.png",

@@ -1,6 +1,6 @@
-# Validación de Yoru 1.3.0
+# Validación de Yoru 1.3.1
 
-La identidad Yoru se verificó el 11 de octubre de 2026. Las pruebas históricas de la versión 1.2/1.2.1 se realizaron el 11 de octubre UTC (10 de octubre en El Salvador).
+El selector de fecha y la navegación redondeada se verificaron el 11 de octubre de 2026, en la versión 1.3.1. La identidad Yoru se verificó previamente ese mismo día en 1.3.0. Las pruebas históricas de la versión 1.2/1.2.1 se realizaron el 11 de octubre UTC (10 de octubre en El Salvador).
 
 Historia del calendario previamente verificada: el usuario configura dos días mensuales; el formulario valida la regla, el reducer la guarda, AsyncStorage la persiste y el calendario muestra los cobros reales. La fecha actual hace avanzar los próximos pagos automáticamente.
 
@@ -8,15 +8,31 @@ Historia del calendario previamente verificada: el usuario configura dos días m
 | --- | --- | --- |
 | TypeScript | Correcto | `npm run typecheck`, código 0. |
 | ESLint | Correcto | `npm run lint`, sin errores ni avisos de código. |
-| Dependencias de Expo | Comprobación local de 1.2.1; sin nuevas dependencias | `EXPO_OFFLINE=1 npx expo install --check`: `Dependencies are up to date`. La validación remota no estuvo disponible. |
-| Lógica del presupuesto | Sin cambios desde la versión 1.2.1 | 29 pruebas previamente aprobadas, 0 fallos; esta entrega cambia marca y assets. |
+| Dependencias de Expo | Comprobación local de 1.3.1 | Se añadieron el selector solicitado 2.1.4 y Day.js mediante `expo install`. `EXPO_OFFLINE=1 npx expo install --check`: `Dependencies are up to date`. La comprobación sin conexión no sustituye una validación remota. |
+| Lógica del presupuesto | Correcto | `npm test`: 29 pruebas aprobadas, 0 fallos en 1.3.1. |
 | Exportación Android | Correcto | Metro generó el paquete Hermes de Android. |
 | Exportación iOS | Correcto | Metro generó el paquete Hermes de iOS. |
 | Exportación web | Correcto | Metro generó el paquete web y el HTML. |
-| Vista móvil en web | Correcto | Chromium con viewport de 390 × 844; ancho de contenido 390, sin desbordamiento. |
+| Vista móvil en web | Correcto | Chromium, zona America/El_Salvador, anchos 320, 390 y 768 px, en ambos temas; sin desbordamiento. |
+| Selector de fecha del gasto | Correcto | 18 comprobaciones de calendario: octubre/agosto de 2026 y febrero de 2028, en tres tamaños y dos temas; todas las fechas y siete columnas, incluyendo domingos. |
+| Navegación redondeada | Correcto | 18 comprobaciones de vistas: radio de 18 px, recorte del fondo y color activo conforme al tema. |
 | Calendario en distintos tamaños | Verificado en 1.2.1 | 50 comprobaciones de meses en anchos de 320, 360, 390, 412 y 768 px; siete columnas y domingos visibles. |
 | Errores de ejecución en web | Correcto | Ningún evento `pageerror` en los flujos probados. |
 | Perfil APK | Preparado | `eas.json`: `preview`, distribución interna, `developmentClient: false`, `android.buildType: apk`. |
+
+## Selector de gastos y navegación verificados en 1.3.1
+
+1. El formulario de alta y edición usa `@amjed-bouhouch/react-native-ui-datepicker` 2.1.4 en modo de selección única, sin hora. El antiguo campo de texto de fecha ya no aparece en el formulario del gasto.
+2. La referencia se adapta con flechas a la derecha, días adyacentes atenuados, tarjeta y selección redondeadas. La fecha y los meses aparecen en español.
+3. Cada fecha de los meses probados aparece una sola vez, todas las filas tienen siete días y cada fecha se alinea con su día de la semana. Se incluyen un mes de seis filas y el 29 de febrero de 2028.
+4. El fondo seleccionado usa azul marino y texto blanco en modo claro; en modo oscuro usa el acento azul del tema y texto marino. Se comprobó el color renderizado y un radio de 8 px en la selección.
+5. Elegir el 29 de febrero y cerrar el formulario conservó el estado anterior, sin guardar gastos automáticamente.
+6. Se creó un gasto de $12.50 con nombre y nota para el domingo 4 de octubre de 2026. Se guardó exactamente `2026-10-04` en la zona de El Salvador, sin adelantarlo al viernes. El saldo pasó de $280 a $267.50.
+7. Se editó ese gasto desde Historial al domingo 25 de octubre y a $15.00. Se conservaron el identificador y la nota, sin duplicar el registro. La fecha guardada fue `2026-10-25`.
+8. Al recargar, se conservaron el gasto modificado, el gasto anterior, el tema y las reglas de pago. El saldo de la primera quincena volvió a $280 porque el gasto editado pasó a la segunda.
+9. Las tres opciones del menú inferior muestran su fondo activo sobre el elemento completo, con radio de 18 px y `overflow: hidden`. Se comprobaron selección, color y límites de pantalla en ambos temas y tres tamaños.
+10. No hubo errores `pageerror` ni solicitudes HTTP fallidas. Se revisó el aspecto de la interfaz; las capturas de comprobación son internas y no forman parte del entregable.
+11. Se verificaron TypeScript, ESLint, las 29 pruebas del presupuesto y las exportaciones de Android/iOS/web. No cambia el esquema de datos (versión 3), la clave local ni el identificador de Android.
 
 ## Identidad Yoru comprobada en la versión 1.3.0
 
