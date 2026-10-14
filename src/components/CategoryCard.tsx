@@ -33,7 +33,7 @@ export function CategoryCard({ category, expenses, expanded, cardMinHeight, onTo
     {expanded && (expenses.length > 0
       ? <CategoryExpenseList category={category} expenses={expenses} onEdit={onEditExpense} />
       : <View style={{ flex: 1, justifyContent: 'center' }}>
-        <AppText variant="muted">Sin gastos en esta quincena.</AppText>
+        <AppText variant="muted" style={{ textAlign: 'center' }}>Sin gastos en esta quincena.</AppText>
       </View>)}
     <Pressable accessibilityRole="button" accessibilityLabel={`Añadir gasto en ${category.name}`} onPress={onAdd}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 44,
