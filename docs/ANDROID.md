@@ -4,7 +4,7 @@ El ZIP es el **proyecto fuente**. No es un APK: descargarlo en el teléfono no i
 
 ## Opción 1: probar con Expo Go
 
-1. En una computadora, instala Node.js LTS compatible (mínimo 20.19) y descomprime `yoru-react-native.zip`.
+1. En una computadora, instala Node.js 24 LTS (o Node 22.13.0 o superior dentro de la rama 22) y descomprime `yoru-react-native.zip`.
 2. En Android, instala **Expo Go compatible con SDK 55**. Si la versión de Google Play no acepta este proyecto, usa la versión para SDK 55 del sitio oficial: https://expo.dev/go?sdkVersion=55&platform=android&device=true.
 3. Abre una terminal dentro de la carpeta `yoru` y ejecuta:
 
@@ -45,7 +45,9 @@ El paquete usa Android 7 o posterior según los requisitos de Expo SDK 55. El id
 
 ## Actualizar una instalación
 
-Esta versión cambia el nombre visible a **Yoru** y el icono. Recompila el APK y actualiza la instalación para verlos en el lanzador; cambiar solo el JavaScript en Expo Go no modifica el icono del teléfono. Se conserva `com.bolsillo.gastos`, el slug `bolsillo` y la clave local anterior para mantener la continuidad de la app y sus datos. El `android.versionCode` de esta entrega es 4 (versión 1.3.1), con selector de fecha de gasto y navegación redondeada.
+Para actualizar el código fuente desde un ZIP, descomprímelo en una carpeta nueva. Esto evita conservar rutas o archivos retirados de versiones anteriores. Vuelve a vincular el mismo proyecto EAS y usa la misma firma al generar el APK.
+
+Esta versión conserva el nombre visible **Yoru**, el icono, `com.bolsillo.gastos`, el slug `bolsillo` y la clave local para mantener la continuidad de la app y sus datos. El `android.versionCode` actual es 11 (versión 1.7.6). Genera e instala el nuevo APK con el mismo proyecto y firma; conserva la instalación anterior para mantener sus datos.
 
 Mantén el `android.package`, el proyecto EAS y la firma. Incrementa `android.versionCode` en `app.json`, vuelve a compilar con `preview` e instala el nuevo APK sobre el anterior. No desinstales para actualizar si quieres conservar los datos. Cambiar de firma, borrar datos o desinstalar elimina o impide conservar esa instalación.
 
