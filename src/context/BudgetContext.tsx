@@ -1,15 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
-import { initialBudget } from "../data/defaults";
-import { BudgetState } from "../types/budget";
-import { loadBudget, saveBudget } from "../services/storage";
-import { BudgetAction, budgetReducer } from "./budgetReducer";
+import React, { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
+import { initialBudget } from '../data/defaults';
+import { BudgetState } from '../types/budget';
+import { loadBudget, saveBudget } from '../services/storage';
+import { BudgetAction, budgetReducer } from './budgetReducer';
 
 interface BudgetContextValue {
   state: BudgetState;
@@ -35,18 +28,12 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     setLoadError(false);
-    loadBudget()
-      .then((saved) => {
-        if (!active) return;
-        if (saved) dispatch({ type: "LOAD", state: saved });
-        setReady(true);
-      })
-      .catch(() => {
-        if (active) setLoadError(true);
-      });
-    return () => {
-      active = false;
-    };
+    loadBudget().then(saved => {
+      if (!active) return;
+      if (saved) dispatch({ type: 'LOAD', state: saved });
+      setReady(true);
+    }).catch(() => { if (active) setLoadError(true); });
+    return () => { active = false; };
   }, [loadAttempt]);
 
   useEffect(() => {
@@ -54,38 +41,23 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     if (!ready) return;
     const current = ++generation.current;
     let active = true;
-    saveBudget(state)
-      .then(() => {
-        if (active && current === generation.current) setSaveError(false);
-      })
-      .catch(() => {
-        if (active && current === generation.current) setSaveError(true);
-      });
-    return () => {
-      active = false;
-    };
+    saveBudget(state).then(() => {
+      if (active && current === generation.current) setSaveError(false);
+    }).catch(() => {
+      if (active && current === generation.current) setSaveError(true);
+    });
+    return () => { active = false; };
   }, [state, ready, saveAttempt]);
 
-  return (
-    <BudgetContext.Provider
-      value={{
-        state,
-        dispatch,
-        ready,
-        loadError,
-        saveError,
-        retryLoad: () => setLoadAttempt((n) => n + 1),
-        retrySave: () => setSaveAttempt((n) => n + 1),
-      }}
-    >
-      {children}
-    </BudgetContext.Provider>
-  );
+  return <BudgetContext.Provider value={{
+    state, dispatch, ready, loadError, saveError,
+    retryLoad: () => setLoadAttempt(n => n + 1),
+    retrySave: () => setSaveAttempt(n => n + 1),
+  }}>{children}</BudgetContext.Provider>;
 }
 
 export function useBudget() {
   const context = useContext(BudgetContext);
-  if (!context)
-    throw new Error("useBudget debe usarse dentro de BudgetProvider.");
+  if (!context) throw new Error('useBudget debe usarse dentro de BudgetProvider.');
   return context;
 }

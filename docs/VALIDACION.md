@@ -1,3 +1,144 @@
+# Validación de Yoru 1.7.1
+
+Verificación del 13 de octubre de 2026 en El Salvador. Flujo: ingresos y planilla → guardado conjunto → AsyncStorage → saldo y prestaciones; Quincena 25 → calendario 15–25 → registro anual → saldo de la quincena de pago.
+
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript y ESLint | Sin errores ni advertencias de código. |
+| Pruebas de lógica | 41 aprobadas, 0 fallos. |
+| Exportaciones | Android, iOS y web generadas correctamente después de la corrección de límites de fechas. |
+| Interfaz web | 30 comprobaciones aprobadas, 0 errores de ejecución o consola. |
+| Ajustes unificados | Una tarjeta Ingresos y planilla contiene ingreso disponible por quincena, sueldo mensual en planilla y antigüedad, con un solo botón Guardar ingresos. |
+| Redundancias | Retiradas las tarjetas independientes de sueldo y las estimaciones repetidas. Los montos calculados permanecen en sus pestañas. |
+| Guardado conjunto | Un campo inválido impide cualquier cambio parcial. Se guardan ingreso quincenal y planilla en una sola operación. Cambiar sólo la planilla conserva el historial de sueldo sin añadir entradas repetidas. |
+| Saldo y prestaciones | $400 disponibles por quincena y $700 en planilla producen saldo de $397.10 tras un gasto de $2.90, y prestaciones de $350 para 18 meses. Ambos datos persisten al recargar. |
+| Fecha de Quincena 25 | Selector y reducer admiten del 15 al 25 de enero, incluidos ambos extremos. Los días 14 y 26 están bloqueados. |
+| Inicio/final de enero | El 1 de enero propone el 15; el 31 propone el 25. El registro sigue habilitado durante enero y está bloqueado en octubre/diciembre. |
+| Calendario inclusivo | Límites normalizados al inicio/final del día local. Se comprobó el 15/25 de enero y el 1/31 de diciembre en Aguinaldo. |
+| Registros previos | Se conservan monto y fecha de un registro antiguo del 5 de enero. El borrador propone el 15; al confirmar una fecha válida se reemplaza un único registro. También se permite retirar el importe en su fecha original. |
+| Período del ingreso | Guardar un pago del 25 de enero lo suma a la segunda quincena; consultarlo desde la primera quincena no suma ese ingreso al saldo de esa primera mitad. |
+| Sin conexión | Guardado conjunto de ingreso y planilla verificado sin conexión. No se hicieron solicitudes a servicios externos. |
+| Pantallas | Temas claro/oscuro y anchos 320, 390 y 768 px; sin desbordamiento horizontal. Se inspeccionó la captura del formulario unificado. |
+
+El estado continúa en versión 6 y mantiene la clave de AsyncStorage. La app es 1.7.1, `android.versionCode` es 10 y el identificador Android sigue siendo `com.bolsillo.gastos`. No se añadieron dependencias. Los pagos históricos de enero que estén fuera del nuevo intervalo siguen siendo legibles para conservar el historial; los nuevos pagos y ediciones se validan con la regla 15–25.
+
+**Límite de validación:** las pruebas de interfaz se realizaron sobre React Native Web en Chromium. Las exportaciones validan JavaScript/Hermes para Android/iOS; no se compiló ni probó un APK en un teléfono físico. Los datos, capturas y scripts internos de pruebas no se incluyen en el ZIP.
+
+## Registro de verificaciones anteriores
+
+# Validación de Yoru 1.7.0
+
+Verificación del 13 de octubre de 2026 en El Salvador. Flujo: formulario de planilla → validación → reducer → AsyncStorage → pestañas/montos calculados → registro anual → ingreso y saldo; selección de color → guardar categoría → persistencia y actualización visual.
+
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript y ESLint | Sin errores ni advertencias de código. |
+| Pruebas de lógica | 38 aprobadas, 0 fallos. |
+| Exportaciones | Android, iOS y web generadas correctamente. |
+| Interfaz web | 33 comprobaciones aprobadas en Chromium. Temas claro/oscuro, anchos 320, 390 y 768 px. |
+| Planilla | Sueldo mensual y años/meses editables todo el año; valores persistentes al recargar. Configuración independiente del sueldo quincenal del presupuesto. |
+| Aguinaldo | Límites de 1, 3 y 10 años verificados: 15, 19 y 21 días. Resultado redondeado sólo al final. $500 / 30 × 19 = $316.67. |
+| Quincena 25 | Mitad del sueldo mensual en planilla. $500 → $250; $700 → $350. |
+| Pestañas | Aguinaldo / Quincena 25 dentro de Ajustes; seleccionadas con Expo Router y parámetro de búsqueda. Un formulario visible por vez. |
+| Habilitación | Fechas y registro de aguinaldo en diciembre y de Quincena 25 en enero. Fuera del mes, montos visibles y registros bloqueados. Enero → febrero conserva el ingreso y bloquea el formulario. |
+| Histórico | Cambiar la planilla actualiza el cálculo, conserva los ingresos guardados y sólo reemplaza el registro del año al confirmar. Verificado en el saldo del dashboard. |
+| Retirar del saldo | Pone a cero el ingreso del año y conserva los años anteriores, su fecha y la configuración de cálculo. |
+| Migración | v1/v2/v3/v4/v5 → v6; se mantienen gastos, categorías, sueldo, tema, calendario e ingresos especiales. Se inicializan viáticos y se conserva el historial de ingresos. |
+| Selector de color | Matiz y saturación/brillo funcionan con gestos táctiles; el resultado persiste al editar y recargar. Nueva categoría con HEX personalizado guardada sin conexión. |
+| Validación HEX | Un código inválido impide guardar; se aceptan seis dígitos con o sin # y se normalizan a mayúsculas. |
+| Controles | Un único botón superior para añadir categorías; retirado el texto inferior de deslizamiento. |
+| Sin conexión | La planilla, los colores y los ingresos se guardan localmente. Ninguna solicitud a servicios externos ni errores de ejecución/consola en los flujos verificados. |
+| Pantallas | Sin desbordamiento horizontal. Se inspeccionaron las capturas del selector a 320 px y de las pestañas a 390 px. |
+
+El estado local es versión 5 y mantiene la clave de AsyncStorage `@bolsillo/budget-v1`. El identificador Android es `com.bolsillo.gastos`, la app es 1.7.0 y `versionCode` es 9. No se añadieron dependencias.
+
+**Límite de validación:** la interfaz y los gestos se comprobaron en React Native Web. Las exportaciones verifican JavaScript/Hermes de Android/iOS; no se generó ni probó un APK en un teléfono físico. Los datos, capturas y scripts internos de pruebas no se incluyen en el ZIP.
+
+## Registro de verificaciones anteriores
+
+# Validación de Yoru 1.6.0
+
+Verificación del 13 de octubre de 2026 en El Salvador. Historia: gesto horizontal → categoría; gesto vertical → gastos restantes; ingreso especial visible → habilitación según el mes → guardado local → saldo e historial.
+
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript y ESLint | Correctos, sin errores ni advertencias de código. |
+| Pruebas de lógica | 33 aprobadas, 0 fallos. |
+| Exportaciones | Android, iOS y web generadas correctamente. |
+| Carrusel | Retirados los botones anterior/siguiente. El gesto táctil horizontal cambia de categoría y actualiza el indicador. |
+| Lista por categoría | Hasta cuatro filas completas visibles; altura uniforme basada en el contenido más alto. Comprobado con 8 gastos, notas y un nombre largo. |
+| Desplazamiento vertical | El gesto muestra los demás gastos sin cambiar la categoría; se mantiene el límite de cuatro filas completas. Una categoría de dos gastos muestra ambos sin scroll interno. |
+| Montos visibles | Quincena 25 y Aguinaldo muestran $250 sugeridos incluso cuando sus campos están deshabilitados. |
+| Enero | Quincena 25 permite guardar y editar. Fecha y botón del aguinaldo permanecen deshabilitados. |
+| Diciembre | Aguinaldo permite guardar; Quincena 25 permanece deshabilitada. |
+| Otros meses | Monto, fecha y botón de ambos ingresos quedan deshabilitados y visibles. |
+| Cambio de mes | Enero → febrero bloquea Quincena 25 mostrando el monto guardado; diciembre → enero bloquea Aguinaldo y activa Quincena 25. |
+| Persistencia | Guardar y editar mantiene un registro por año, conserva los anteriores y persiste al recargar. |
+| Sin ingresos ficticios | Mostrar $250 como sugerencia no crea registros ni modifica el saldo hasta confirmar el guardado. |
+| Pantallas | Temas claro/oscuro y anchos 320, 390 y 768 px, sin desbordamiento horizontal. |
+| Sin conexión | Guardado y edición de Quincena 25 con el navegador sin conexión. Ninguna solicitud a servicios externos ni errores de ejecución en los flujos verificados. |
+
+El monto de aguinaldo es una referencia facilitada por el usuario: $500 mensuales en planilla y 15 días de salario, equivalentes a $250, para una antigüedad de un año y medio. Se verificó la tabla del Ministerio de Trabajo: https://defiendetuaguinaldo.mtps.gob.sv/. La app no calcula automáticamente cambios futuros de salario o antigüedad; el monto puede editarse durante diciembre.
+
+Los ingresos existentes del año tienen prioridad sobre los valores sugeridos. Se conserva el esquema de datos local versión 4, la clave de AsyncStorage y el identificador Android `com.bolsillo.gastos`. La app es 1.6.0 y su `versionCode` es 8.
+
+**Límite de validación:** los gestos se simularon sobre React Native Web en Chromium con pantalla táctil. Las exportaciones validan JavaScript/Hermes de Android/iOS; no se ha generado ni probado un APK en un teléfono físico. Los datos, capturas y scripts internos de pruebas no se incluyen en el ZIP.
+
+## Registro de verificaciones anteriores
+
+# Validación de Yoru 1.5.1
+
+Verificación realizada el 12 de octubre de 2026 en El Salvador. Esta versión ubica Quincena 25 en Ajustes, justo debajo de Aguinaldo, y utiliza guardado exclusivamente local.
+
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript y ESLint | Correctos, sin errores ni advertencias de código. |
+| Pruebas de lógica | 33 aprobadas, 0 fallos. |
+| Exportaciones | Android, iOS y web generadas correctamente. |
+| Dependencias | Manifest y lockfile coinciden; comprobación local de Expo compatible. |
+| Conexión remota | Retirados el cliente, los proveedores, formularios y dependencias de Supabase. No se requieren variables de conexión. |
+| Navegación | Tres pestañas: Dashboard, Historial y Ajustes. |
+| Ubicación | Quincena 25 aparece inmediatamente después de Aguinaldo dentro de Ajustes. |
+| Enero | Alta y edición de monto sin duplicar registros; fecha de enero, saldo actualizado y datos conservados al recargar. |
+| Fuera de enero | Formulario bloqueado en octubre y diciembre. El cambio de enero a febrero lo bloquea sin recargar ni borrar el ingreso. |
+| Conservación | Gastos, categorías, calendario, tema, sueldo, aguinaldos y registros anteriores de Quincena 25 se mantienen. |
+| Sin conexión | Alta y edición de Quincena 25 con el navegador en modo sin conexión. Ninguna solicitud a servicios externos en el flujo verificado. |
+| Interfaz web | 19 comprobaciones aprobadas, temas claro/oscuro y anchos de 320, 390 y 768 px, sin desbordamiento ni errores de ejecución. |
+
+El presupuesto continúa en el esquema local versión 4 y utiliza la misma clave de AsyncStorage. El identificador Android sigue siendo `com.bolsillo.gastos`; la app es 1.5.1 y su `versionCode` es 7.
+
+Se excluyen los archivos generados del chequeo de TypeScript. Esto evita que una exportación interfiera con la revisión de código. Los datos y capturas de prueba no se incluyen en el ZIP.
+
+**Límite de la validación:** las pruebas de interfaz se realizaron sobre React Native Web. Las exportaciones de Android/iOS verifican los paquetes JavaScript/Hermes; no se ha generado ni probado un APK en un teléfono físico.
+
+## Registro de verificaciones anteriores
+
+# Validación de Yoru 1.4.0
+
+Verificación realizada el 12 de octubre de 2026. Flujo de esta actualización: pestaña/formulario → reducer → AsyncStorage → ingresos, saldo y dona; categoría visible → formulario de gasto → guardado.
+
+| Comprobación | Resultado |
+| --- | --- |
+| TypeScript y ESLint | Sin errores ni advertencias del proyecto. |
+| Lógica del presupuesto | 33 pruebas aprobadas, 0 fallos; incluye Quincena 25 y migración v3 → v4. |
+| Dependencias | `EXPO_OFFLINE=1 npx expo install --check`: compatibles según la comprobación local. |
+| Exportación | Paquetes de Android, iOS y web generados correctamente. |
+| Navegación | Cuatro rutas con Expo Router; menú inferior redondeado. Quincena 25 es independiente de Ajustes. |
+| Quincena 25 | Habilitada en enero; febrero bloquea la pestaña y el formulario incluso al abrir su ruta directamente. |
+| Guardado y edición | Monto y fecha se conservan al recargar; editar actualiza un único registro del año. |
+| Saldo | Sueldo de $300 + ingreso de $200 − gastos de $4.85 = $495.15 en la quincena elegida. |
+| Aguinaldo | Continúa habilitado en diciembre; Quincena 25 permanece bloqueada ese mes. |
+| Carrusel | Una tarjeta expandida a la vez al finalizar el desplazamiento; flechas y desplazamiento horizontal manual. Revisado a 320, 390 y 768 px. |
+| Temas | Carrusel y formulario utilizan el tema global claro/oscuro. |
+| Migración | La prueba en web inicia con datos v3 y conserva gasto, sueldo, calendario, tema y aguinaldo. |
+| Errores de navegador | Sin errores de ejecución ni errores de consola en el flujo verificado. |
+
+Se corrigieron dos atributos SVG de la versión anterior que generaban avisos de React en web, manteniendo la forma de la dona y la accesibilidad de los iconos. Las capturas se revisaron localmente; no forman parte del ZIP.
+
+No se ha compilado ni instalado un APK en un dispositivo físico. Las exportaciones validan JavaScript/Hermes y no sustituyen esa prueba. Recompila el APK con la misma firma para instalar esta actualización conservando los datos.
+
+## Registro de verificaciones anteriores
+
 # Validación de Yoru 1.3.1
 
 El selector de fecha y la navegación redondeada se verificaron el 11 de octubre de 2026, en la versión 1.3.1. La identidad Yoru se verificó previamente ese mismo día en 1.3.0. Las pruebas históricas de la versión 1.2/1.2.1 se realizaron el 11 de octubre UTC (10 de octubre en El Salvador).
