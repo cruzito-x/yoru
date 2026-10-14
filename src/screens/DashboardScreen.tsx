@@ -64,7 +64,6 @@ export function DashboardScreen() {
       {balance < 0 && <View style={{ backgroundColor: colors.dangerSoft, borderRadius: 12, padding: 12 }}>
         <AppText style={{ color: colors.danger, fontSize: 12 }}>Excediste tu {incomeName} por {money(-balance)}. Los porcentajes de la dona representan los gastos totales.</AppText>
       </View>}
-      {spent === 0 && <AppText variant="muted" style={{ textAlign: 'center' }}>Tu primer gasto dará forma a esta quincena.</AppText>}
     </Card>
     <View style={{ gap: 14 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>

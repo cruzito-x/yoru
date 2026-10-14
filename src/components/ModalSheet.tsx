@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/useTheme';
 import { AppText, Button, IconButton } from './ui';
 
-export function ModalSheet({ visible, title, onClose, children }: {
-  visible: boolean; title: string; onClose: () => void; children: React.ReactNode;
+export function ModalSheet({ visible, title, onClose, children, contentGap = 18 }: {
+  visible: boolean; title: string; onClose: () => void; children: React.ReactNode; contentGap?: number;
 }) {
   const { colors } = useTheme();
   return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -18,7 +18,7 @@ export function ModalSheet({ visible, title, onClose, children }: {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 12 }}>
             <AppText variant="heading">{title}</AppText><IconButton name="close" label="Cerrar" onPress={onClose} />
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, paddingTop: 12, gap: 18 }}>{children}</ScrollView>
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, paddingTop: 12, gap: contentGap }}>{children}</ScrollView>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

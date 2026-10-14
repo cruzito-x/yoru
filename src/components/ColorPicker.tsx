@@ -5,7 +5,7 @@ import { useTheme } from '../theme/useTheme';
 import { clampUnit, hexToHsv, HSVColor, hsvToHex, normalizeHexColor } from '../utils/colors';
 import { AppText, Field } from './ui';
 
-const AREA_HEIGHT = 150;
+const AREA_HEIGHT = 110;
 
 export function ColorPicker({ value, onChange }: { value: string; onChange: (color: string) => void }) {
   const { colors } = useTheme();
@@ -34,7 +34,7 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (col
     update({ ...hsv, h: clampUnit(event.nativeEvent.locationX / width) * 360 });
   }
 
-  return <View style={{ gap: 12 }}>
+  return <View style={{ gap: 8 }}>
     <AppText style={{ fontWeight: '600', fontSize: 13 }}>Color personalizado</AppText>
     <View testID="color-picker-area" accessibilityLabel="Saturación y brillo del color"
       accessibilityHint="Arrastra para elegir el color o introduce su código HEX abajo."
