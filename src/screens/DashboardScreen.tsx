@@ -17,6 +17,7 @@ import { calculateFortnightPayroll } from '../utils/payroll';
 import { SummaryCard } from '../components/SummaryCard';
 import { FixedExpenseForm } from '../components/FixedExpensesCard';
 import { webScrollbarStyle } from '../utils/scrollStyles';
+import { useCategoryOrdering } from '../context/CategoryOrderingContext';
 
 const MAX_VISIBLE_CHART_CATEGORIES = 4;
 const CHART_CATEGORY_ROW_HEIGHT = 24;
@@ -30,7 +31,7 @@ export function DashboardScreen() {
   const [expenseForm, setExpenseForm] = useState<Omit<ExpenseFormProps, 'onClose'> | null>(null);
   const [fixedExpenseForm, setFixedExpenseForm] = useState<FixedExpense | null>(null);
   const [chartLegendExpanded, setChartLegendExpanded] = useState(false);
-  const [orderingCategories, setOrderingCategories] = useState(false);
+  const { orderingCategories, setOrderingCategories } = useCategoryOrdering();
   const range = fortnight(anchor);
   const expenses = expensesAndFixedInRange(state.expenses, state.fixedExpenses, range, state.paymentSchedule);
   const payroll = calculateFortnightPayroll(state.payrollSettings.monthlySalaryCents);

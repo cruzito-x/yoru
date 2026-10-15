@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useMemo, useRef } from 'react';
+import { PanResponder, Pressable, View } from 'react-native';
 import { Category, Expense } from '../types/budget';
 import { useTheme } from '../theme/useTheme';
 import { totalExpenses } from '../utils/budget';
@@ -17,7 +17,20 @@ export function CategoryCard({ category, expenses, expanded, onToggleExpenses, o
   category: Category; expenses: Expense[];
 }) {
   const { colors } = useTheme();
-  const dragStart = useRef({ x: 0, y: 0 });
+  const dragCallbacks = useRef({ ordering, onDragStart, onDragMove, onDragEnd });
+  dragCallbacks.current = { ordering, onDragStart, onDragMove, onDragEnd };
+  const dragResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => dragCallbacks.current.ordering,
+    onStartShouldSetPanResponderCapture: () => dragCallbacks.current.ordering,
+    onMoveShouldSetPanResponder: () => dragCallbacks.current.ordering,
+    onMoveShouldSetPanResponderCapture: () => dragCallbacks.current.ordering,
+    onPanResponderTerminationRequest: () => false,
+    onShouldBlockNativeResponder: () => true,
+    onPanResponderGrant: () => dragCallbacks.current.onDragStart(),
+    onPanResponderMove: (_, gesture) => dragCallbacks.current.onDragMove(gesture.dx, gesture.dy),
+    onPanResponderRelease: (_, gesture) => dragCallbacks.current.onDragEnd(gesture.dx, gesture.dy),
+    onPanResponderTerminate: (_, gesture) => dragCallbacks.current.onDragEnd(gesture.dx, gesture.dy),
+  }), [dragCallbacks]);
   return <Card style={{ padding: 16, gap: 8, flexDirection: 'column' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 0 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`}
@@ -31,15 +44,11 @@ export function CategoryCard({ category, expenses, expanded, onToggleExpenses, o
       </Pressable>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 0 }}>
         {ordering
-          ? <Pressable accessibilityRole="button" accessibilityLabel={`Arrastrar para ordenar ${category.name}`}
-            onStartShouldSetResponder={() => true}
-            onResponderGrant={event => { dragStart.current = { x: event.nativeEvent.pageX, y: event.nativeEvent.pageY }; onDragStart(); }}
-            onResponderMove={event => onDragMove(event.nativeEvent.pageX - dragStart.current.x, event.nativeEvent.pageY - dragStart.current.y)}
-            onResponderRelease={event => onDragEnd(event.nativeEvent.pageX - dragStart.current.x, event.nativeEvent.pageY - dragStart.current.y)}
-            onResponderTerminate={() => onDragEnd(0, 0)}
+          ? <View {...dragResponder.panHandlers} accessibilityRole="button" accessibilityLabel={`Arrastrar para ordenar ${category.name}`}
+            accessibilityHint="Mantén presionado y arrastra la tarjeta para cambiar su posición."
             style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }}>
             <Icon name="gripVertical" color={colors.muted} size={20} />
-          </Pressable>
+          </View>
           : <IconButton compact name={expanded ? 'up' : 'down'} label={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`} onPress={onToggleExpenses} />}
         {!ordering && <IconButton compact name="moreVertical" label={`Editar categoría ${category.name}`} onPress={onEditCategory} />}
       </View>

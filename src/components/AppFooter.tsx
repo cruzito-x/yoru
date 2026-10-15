@@ -12,11 +12,7 @@ export function AppFooter() {
   const footerColor = colors.muted;
   const textStyle = { color: footerColor, fontSize: 11, lineHeight: 15, fontWeight: '500', textAlign: 'center' } as const;
 
-  return <View style={{ alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-      <AppText style={textStyle}>Made with </AppText>
-      <AppText accessibilityLabel="corazón" style={textStyle}>♡</AppText>
-    </View>
+  return <View style={{ alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
       <AppText style={textStyle}>© </AppText>
       <Link href={INSTAGRAM_URL} asChild>

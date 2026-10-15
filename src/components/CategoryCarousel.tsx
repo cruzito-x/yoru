@@ -21,6 +21,8 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
+  const dragOriginPage = useRef(0);
+  const dragTargetPage = useRef(0);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => new Set(categories.map(category => category.id)));
   const pages = Array.from({ length: Math.ceil(categories.length / 2) }, (_, pageIndex) => categories.slice(pageIndex * 2, pageIndex * 2 + 2));
   const scrollbarGap = 12;
@@ -64,8 +66,7 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
     const origin = layouts.current[categoryId];
     if (origin) {
       const originIndex = categories.findIndex(category => category.id === categoryId);
-      const pageIndex = Math.max(0, Math.min(pages.length - 1,
-        Math.floor(originIndex / 2) + Math.round(offsetX / Math.max(width, 1))));
+      const pageIndex = dragTargetPage.current;
       const pageStart = pageIndex * 2;
       const targetPage = categories.slice(pageStart, pageStart + 2);
       const center = origin.y + offsetY + origin.height / 2;
@@ -90,6 +91,26 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
     setDraggingId(null);
     setDragOffsetX(0);
     setDragOffset(0);
+  }
+
+  function moveDrag(offsetX: number, offsetY: number) {
+    const originPage = dragOriginPage.current;
+    const pageShiftThreshold = Math.max(24, Math.min(40, width * 0.08));
+    const distancePastThreshold = Math.max(0, Math.abs(offsetX) - pageShiftThreshold);
+    const pageShift = Math.abs(offsetX) < pageShiftThreshold
+      ? 0
+      : Math.sign(offsetX) * (1 + Math.floor(distancePastThreshold / Math.max(width, 1)));
+    const nextPage = Math.max(0, Math.min(pages.length - 1, originPage + pageShift));
+
+    if (nextPage !== dragTargetPage.current) {
+      dragTargetPage.current = nextPage;
+      scrollRef.current?.scrollTo({ x: nextPage * width, animated: false });
+      setCurrentPage(nextPage);
+    }
+
+    // Compensa el desplazamiento de página para que la tarjeta siga bajo el dedo.
+    setDragOffsetX(offsetX + (nextPage - originPage) * width);
+    setDragOffset(offsetY);
   }
 
   function handleLayout(event: LayoutChangeEvent) {
@@ -142,8 +163,15 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
                 else next.add(category.id);
                 return next;
               })} ordering={ordering}
-              onDragStart={() => { setDraggingId(category.id); setDragOffsetX(0); setDragOffset(0); }}
-              onDragMove={(offsetX, offsetY) => { setDragOffsetX(offsetX); setDragOffset(offsetY); }}
+              onDragStart={() => {
+                const pageIndex = Math.floor(categories.findIndex(item => item.id === category.id) / 2);
+                dragOriginPage.current = pageIndex;
+                dragTargetPage.current = pageIndex;
+                setDraggingId(category.id);
+                setDragOffsetX(0);
+                setDragOffset(0);
+              }}
+              onDragMove={moveDrag}
               onDragEnd={(offsetX, offsetY) => finishDrag(category.id, offsetX, offsetY)}
               onAdd={() => onAdd(category.id)} onEditCategory={() => onEditCategory(category)} onEditExpense={onEditExpense} />
           </View>;

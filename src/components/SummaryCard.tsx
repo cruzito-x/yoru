@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Image, View } from 'react-native';
+import { Image, Platform, View } from 'react-native';
 import { BlurTargetView, BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
 import { Category } from '../types/budget';
@@ -39,15 +39,20 @@ export function SummaryCard(props: DashboardSummary | HistorySummary) {
   return <Card style={{ position: 'relative', overflow: 'hidden', backgroundColor: surfaceColor,
     borderColor: isDark ? 'rgba(255,255,255,0.14)' : colors.border, borderRadius: 24,
     padding: 20, gap: isHistory ? 12 : 16 }}>
-    <BlurTargetView ref={blurTarget} pointerEvents="none" accessibilityElementsHidden
+    {Platform.OS === 'android' ? <View pointerEvents="none" accessibilityElementsHidden
       style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
       <Image source={require('../../assets/dashboard-glass-waves.png')} resizeMode="stretch"
         style={{ position: 'absolute', width: '112%', height: isHistory ? 190 : 160, right: -42, bottom: isHistory ? -36 : -28,
           opacity: isDark ? (isHistory ? 0.2 : 0.22) : (isHistory ? 0.22 : 0.42) }} />
-    </BlurTargetView>
-    <BlurView blurTarget={blurTarget} intensity={6} tint={isDark ? 'dark' : 'light'}
+    </View> : <BlurTargetView ref={blurTarget} pointerEvents="none" accessibilityElementsHidden
+      style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
+      <Image source={require('../../assets/dashboard-glass-waves.png')} resizeMode="stretch"
+        style={{ position: 'absolute', width: '112%', height: isHistory ? 190 : 160, right: -42, bottom: isHistory ? -36 : -28,
+          opacity: isDark ? (isHistory ? 0.2 : 0.22) : (isHistory ? 0.22 : 0.42) }} />
+    </BlurTargetView>}
+    {Platform.OS !== 'android' && <BlurView blurTarget={blurTarget} intensity={6} tint={isDark ? 'dark' : 'light'}
       blurMethod="dimezisBlurView" pointerEvents="none"
-      style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+      style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />}
 
     {props.variant === 'dashboard' ? <>
       <View style={{ gap: 5 }}>
