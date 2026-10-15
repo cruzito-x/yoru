@@ -12,11 +12,12 @@ export function CategoryCard({ category, expenses, expanded, onToggleExpenses, o
   ordering, onDragStart, onDragMove, onDragEnd }: {
   onAdd: () => void; onEditCategory: () => void; onEditExpense: (expense: Expense) => void;
   expanded: boolean; onToggleExpenses: () => void;
-  ordering: boolean; onDragStart: () => void; onDragMove: (offset: number) => void; onDragEnd: (offset: number) => void;
+  ordering: boolean; onDragStart: () => void; onDragMove: (offsetX: number, offsetY: number) => void;
+  onDragEnd: (offsetX: number, offsetY: number) => void;
   category: Category; expenses: Expense[];
 }) {
   const { colors } = useTheme();
-  const dragStartY = useRef(0);
+  const dragStart = useRef({ x: 0, y: 0 });
   return <Card style={{ padding: 16, gap: 8, flexDirection: 'column' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 0 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`}
@@ -32,10 +33,10 @@ export function CategoryCard({ category, expenses, expanded, onToggleExpenses, o
         {ordering
           ? <Pressable accessibilityRole="button" accessibilityLabel={`Arrastrar para ordenar ${category.name}`}
             onStartShouldSetResponder={() => true}
-            onResponderGrant={event => { dragStartY.current = event.nativeEvent.pageY; onDragStart(); }}
-            onResponderMove={event => onDragMove(event.nativeEvent.pageY - dragStartY.current)}
-            onResponderRelease={event => onDragEnd(event.nativeEvent.pageY - dragStartY.current)}
-            onResponderTerminate={() => onDragEnd(0)}
+            onResponderGrant={event => { dragStart.current = { x: event.nativeEvent.pageX, y: event.nativeEvent.pageY }; onDragStart(); }}
+            onResponderMove={event => onDragMove(event.nativeEvent.pageX - dragStart.current.x, event.nativeEvent.pageY - dragStart.current.y)}
+            onResponderRelease={event => onDragEnd(event.nativeEvent.pageX - dragStart.current.x, event.nativeEvent.pageY - dragStart.current.y)}
+            onResponderTerminate={() => onDragEnd(0, 0)}
             style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }}>
             <Icon name="gripVertical" color={colors.muted} size={20} />
           </Pressable>

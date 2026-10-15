@@ -7,10 +7,10 @@ import { AppText } from './ui';
 const INSTAGRAM_URL = 'https://www.instagram.com/cruzito.x_';
 
 export function AppFooter() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const year = new Date().getFullYear();
-  const footerColor = isDark ? colors.onPrimary : colors.muted;
-  const textStyle = { color: footerColor, fontSize: 11, lineHeight: 16, textAlign: 'center' } as const;
+  const footerColor = colors.muted;
+  const textStyle = { color: footerColor, fontSize: 11, lineHeight: 15, fontWeight: '500', textAlign: 'center' } as const;
 
   return <View style={{ alignItems: 'center', justifyContent: 'center', gap: 1 }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>

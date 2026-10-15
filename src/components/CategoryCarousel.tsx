@@ -12,12 +12,14 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
 }) {
   const { colors } = useTheme();
   const layouts = useRef<Record<string, { y: number; height: number }>>({});
+  const scrollRef = useRef<ScrollView>(null);
   const knownCategoryIds = useRef(new Set(categories.map(category => category.id)));
   const webScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [heights, setHeights] = useState<Record<string, number>>({});
   const [width, setWidth] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOffsetX, setDragOffsetX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => new Set(categories.map(category => category.id)));
   const pages = Array.from({ length: Math.ceil(categories.length / 2) }, (_, pageIndex) => categories.slice(pageIndex * 2, pageIndex * 2 + 2));
@@ -58,27 +60,35 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
 
   if (!categories.length) return null;
 
-  function finishDrag(categoryId: string, offset: number) {
+  function finishDrag(categoryId: string, offsetX: number, offsetY: number) {
     const origin = layouts.current[categoryId];
     if (origin) {
       const originIndex = categories.findIndex(category => category.id === categoryId);
-      const pairStart = Math.floor(originIndex / 2) * 2;
-      const center = origin.y + offset + origin.height / 2;
-      let targetIndex = originIndex;
+      const pageIndex = Math.max(0, Math.min(pages.length - 1,
+        Math.floor(originIndex / 2) + Math.round(offsetX / Math.max(width, 1))));
+      const pageStart = pageIndex * 2;
+      const targetPage = categories.slice(pageStart, pageStart + 2);
+      const center = origin.y + offsetY + origin.height / 2;
+      let targetIndex = Math.min(originIndex, categories.length - 1);
       let closestDistance = Infinity;
-      categories.slice(pairStart, pairStart + 2).forEach((category, pairIndex) => {
+      targetPage.forEach((category, indexInPage) => {
         const layout = layouts.current[category.id];
         if (!layout) return;
         const categoryCenter = layout.y + layout.height / 2;
         const distance = Math.abs(categoryCenter - center);
         if (distance < closestDistance) {
-          targetIndex = pairStart + pairIndex;
+          targetIndex = pageStart + indexInPage;
           closestDistance = distance;
         }
       });
+      if (targetPage.length) {
+        scrollRef.current?.scrollTo({ x: pageIndex * width, animated: true });
+        setCurrentPage(pageIndex);
+      }
       onMove(categoryId, targetIndex);
     }
     setDraggingId(null);
+    setDragOffsetX(0);
     setDragOffset(0);
   }
 
@@ -95,11 +105,8 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
   }
 
   return <View style={{ gap: 8 }}>
-    {ordering && <AppText variant="muted" accessibilityLiveRegion="polite" style={{ textAlign: 'center', fontSize: 12 }}>
-      Arrastra verticalmente para ordenar
-    </AppText>}
     <View onLayout={handleLayout} style={{ overflow: 'hidden' }}>
-    {width > 0 && <ScrollView nativeID="category-scroll-area" testID="category-list" horizontal pagingEnabled
+    {width > 0 && <ScrollView ref={scrollRef} nativeID="category-scroll-area" testID="category-list" horizontal pagingEnabled
       showsHorizontalScrollIndicator persistentScrollbar={Platform.OS === 'android'}
       keyboardShouldPersistTaps="handled" directionalLockEnabled
       onMomentumScrollEnd={handleScrollEnd}
@@ -127,7 +134,7 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
               setHeights(previous => previous[category.id] === height ? previous : { ...previous, [category.id]: height });
             }}
             style={{ zIndex: isDragging ? 2 : 0, elevation: isDragging ? 4 : 0,
-              transform: [{ translateY: isDragging ? dragOffset : 0 }], opacity: isDragging ? 0.88 : 1 }}>
+              transform: [{ translateX: isDragging ? dragOffsetX : 0 }, { translateY: isDragging ? dragOffset : 0 }], opacity: isDragging ? 0.88 : 1 }}>
             <CategoryCard category={category} expenses={categoryExpenses} expanded={isExpanded}
               onToggleExpenses={() => setExpandedCategories(previous => {
                 const next = new Set(previous);
@@ -135,9 +142,9 @@ export function CategoryCarousel({ categories, expenses, onAdd, onEditCategory, 
                 else next.add(category.id);
                 return next;
               })} ordering={ordering}
-              onDragStart={() => { setDraggingId(category.id); setDragOffset(0); }}
-              onDragMove={offset => setDragOffset(offset)}
-              onDragEnd={offset => finishDrag(category.id, offset)}
+              onDragStart={() => { setDraggingId(category.id); setDragOffsetX(0); setDragOffset(0); }}
+              onDragMove={(offsetX, offsetY) => { setDragOffsetX(offsetX); setDragOffset(offsetY); }}
+              onDragEnd={(offsetX, offsetY) => finishDrag(category.id, offsetX, offsetY)}
               onAdd={() => onAdd(category.id)} onEditCategory={() => onEditCategory(category)} onEditExpense={onEditExpense} />
           </View>;
         })}

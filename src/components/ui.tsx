@@ -45,14 +45,15 @@ export function Button({ title, onPress, icon, variant = 'primary', disabled = f
   </Pressable>;
 }
 
-export function IconButton({ name, label, onPress, disabled = false, compact = false }: {
-  name: IconName; label: string; onPress: () => void; disabled?: boolean; compact?: boolean;
+export function IconButton({ name, label, onPress, disabled = false, compact = false, tone = 'default' }: {
+  name: IconName; label: string; onPress: () => void; disabled?: boolean; compact?: boolean; tone?: 'default' | 'danger';
 }) {
   const { colors } = useTheme();
+  const iconColor = tone === 'danger' ? colors.danger : colors.text;
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} aria-disabled={disabled} disabled={disabled}
     hitSlop={compact ? 4 : 0} onPress={onPress} style={({ pressed }) => ({ width: compact ? 36 : 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
       backgroundColor: pressed ? colors.surfaceAlt : 'transparent', opacity: disabled ? 0.35 : 1 })}>
-    <Icon name={name} color={colors.text} size={compact ? 18 : 20} />
+    <Icon name={name} color={iconColor} size={compact ? 18 : 20} />
   </Pressable>;
 }
 
@@ -90,7 +91,6 @@ export function ScreenHeader({ title, subtitle }: { title?: string; subtitle: st
         <BrandLogo size={30} />
         <AppText variant="label" style={{ color: colors.primary, fontSize: 12, letterSpacing: 3 }}>{BRAND.wordmark}</AppText>
       </View>
-      <AppText variant="label">USD</AppText>
     </View>
     <View style={{ gap: 4 }}>{title ? <AppText variant="title">{title}</AppText> : null}<AppText variant="muted">{subtitle}</AppText></View>
   </View>;

@@ -15,6 +15,8 @@ export interface Expense {
   categoryId: string;
   date: string; // Fecha local YYYY-MM-DD. No se convierte a UTC.
   note: string;
+  /** Identificador de la regla recurrente; solo se usa en ocurrencias calculadas. */
+  fixedExpenseId?: string;
 }
 
 export interface FixedExpense {
@@ -23,6 +25,9 @@ export interface FixedExpense {
   amountCents: number;
   categoryId: string;
   payFortnight: 1 | 2;
+  startsOn?: string;
+  /** Día mensual opcional; null o ausente sigue la fecha del pago configurado. */
+  paymentDay?: number | null;
 }
 
 export interface SalaryEntry {
@@ -64,7 +69,7 @@ export interface ScheduledPayment {
 }
 
 export interface BudgetState {
-  version: 8;
+  version: 9;
   categories: Category[];
   expenses: Expense[];
   fixedExpenses: FixedExpense[];

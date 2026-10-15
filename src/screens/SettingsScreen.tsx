@@ -23,7 +23,7 @@ export function SettingsScreen() {
   const currentDay = useToday();
 
   return <Screen>
-    <ScreenHeader title="A tu medida." subtitle="Tu sueldo, tu estilo y tu forma de organizarte." />
+    <ScreenHeader subtitle="Tu sueldo, tu estilo y tu forma de organizarte." />
     <PayrollCard currentDay={currentDay} />
     <PaymentScheduleCard currentDay={currentDay} />
     <SpecialIncomeTabs currentDay={currentDay} />

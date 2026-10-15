@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, TextInput, View, type ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useBudget } from '../context/BudgetContext';
-import { Expense, HistoryPeriod } from '../types/budget';
+import { Expense, FixedExpense, HistoryPeriod } from '../types/budget';
 import { useTheme } from '../theme/useTheme';
-import { categoryTotals, expensesInRange, groupByDay, totalExpenses } from '../utils/budget';
+import { categoryTotals, expensesAndFixedInRange, groupByDay, totalExpenses } from '../utils/budget';
 import { historyRange, movePeriod, rangeLabel, readableDate, today } from '../utils/dates';
 import { money } from '../utils/money';
 import { AppText, Card, EmptyState, Screen, ScreenHeader, Segmented } from '../components/ui';
 import { PeriodNavigator } from '../components/PeriodNavigator';
 import { ExpenseRow } from '../components/ExpenseRow';
+import { webScrollbarStyle } from '../utils/scrollStyles';
 import { ExpenseForm } from '../components/ExpenseForm';
 import { ExpenseDatePicker } from '../components/ExpenseDatePicker';
 import { Icon } from '../components/Icon';
 import { SummaryCard } from '../components/SummaryCard';
+import { FixedExpenseForm } from '../components/FixedExpensesCard';
 
 const options: { value: HistoryPeriod; label: string }[] = [
   { value: 'day', label: 'Día' }, { value: 'week', label: 'Semana' }, { value: 'month', label: 'Mes' }, { value: 'year', label: 'Año' },
@@ -25,6 +27,7 @@ export function HistoryScreen() {
   const [anchor, setAnchor] = useState(today);
   const [showDate, setShowDate] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
+  const [editingFixed, setEditingFixed] = useState<FixedExpense | null>(null);
   const [search, setSearch] = useState('');
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
@@ -40,9 +43,9 @@ export function HistoryScreen() {
   }, [colors.muted]);
   const range = historyRange(period, anchor);
   const previousRange = historyRange(period, movePeriod(period, anchor, -1));
-  const expenses = expensesInRange(state.expenses, range);
+  const expenses = expensesAndFixedInRange(state.expenses, state.fixedExpenses, range, state.paymentSchedule);
   const total = totalExpenses(expenses);
-  const previousTotal = totalExpenses(expensesInRange(state.expenses, previousRange));
+  const previousTotal = totalExpenses(expensesAndFixedInRange(state.expenses, state.fixedExpenses, previousRange, state.paymentSchedule));
   const normalizedSearch = normalizeSearch(search.trim());
   const filteredExpenses = normalizedSearch ? expenses.filter(expense => {
     const category = state.categories.find(item => item.id === expense.categoryId)?.name ?? '';
@@ -55,7 +58,7 @@ export function HistoryScreen() {
   };
 
   return <Screen>
-    <ScreenHeader title="Tu historial." subtitle="Encuentra tus gastos y reconoce tus hábitos." />
+    <ScreenHeader subtitle="Encuentra tus gastos y reconoce tus hábitos." />
     <View style={{ gap: 10 }}>
       <Segmented options={options} value={period} onChange={setPeriod} />
       <Card style={{ padding: 10, gap: 6 }}>
@@ -92,9 +95,15 @@ export function HistoryScreen() {
         title={normalizedSearch ? 'No encontramos movimientos' : 'Sin movimientos en este período'}
         description={normalizedSearch ? 'Prueba con otro nombre, categoría o nota.' : 'Cambia el período o la fecha para consultar otros movimientos.'} /></Card>}
       {groups.map(group => <HistoryExpenseGroup key={group.date} group={group} categories={state.categories}
-        onEdit={expense => setEditing(expense)} />)}
+        onEdit={expense => {
+          if (expense.fixedExpenseId) {
+            const fixedExpense = state.fixedExpenses.find(item => item.id === expense.fixedExpenseId);
+            if (fixedExpense) setEditingFixed(fixedExpense);
+          } else setEditing(expense);
+        }} />)}
     </View>
     {editing && <ExpenseForm expense={editing} onClose={() => setEditing(null)} />}
+    {editingFixed && <FixedExpenseForm expense={editingFixed} onClose={() => setEditingFixed(null)} />}
   </Screen>;
 }
 
@@ -128,7 +137,6 @@ function HistoryExpenseGroup({ group, categories, onEdit }: {
   const hasOverflow = group.expenses.length > MAX_VISIBLE_HISTORY_ROWS;
   const rowHeight = Math.max(72, ...group.expenses.map(expense => rowHeights[expense.id] ?? 0));
   const visibleHeight = rowHeight * MAX_VISIBLE_HISTORY_ROWS;
-  const webScrollbarStyle = Platform.OS === 'web' ? { scrollbarWidth: 'thin' } as ViewStyle : undefined;
   const rows = group.expenses.map(expense => <ExpenseRow key={expense.id} expense={expense}
     category={categories.find(category => category.id === expense.categoryId)} showDate={false}
     minHeight={hasOverflow ? rowHeight : undefined}

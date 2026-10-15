@@ -135,7 +135,7 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
       confirmTitle="Sí, guardar calendario" onCancel={() => setConfirmSave(false)} onConfirm={saveConfirmed} />
     <ConfirmAction visible={confirmDeactivate} title="¿Desactivar calendario de pagos?"
       description="Dejarás de ver las próximas fechas calculadas. Tus gastos y quincenas presupuestadas no cambiarán."
-      confirmTitle="Sí, desactivar" confirmVariant="danger"
+      confirmTitle="Sí, desactivar" confirmVariant="primary" cancelVariant="danger"
       onCancel={() => setConfirmDeactivate(false)} onConfirm={deactivateConfirmed} />
     <AppText variant="muted" style={{ fontSize: 11 }}>El calendario calcula las fechas de cobro. El presupuesto mantiene sus quincenas del 1 al 14 y del 15 al fin de mes.</AppText>
   </Card>;

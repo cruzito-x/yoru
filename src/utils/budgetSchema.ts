@@ -1,5 +1,5 @@
 import { BudgetState, PayrollSettings } from '../types/budget';
-import { isDecember, isJanuary, isValidDate } from './dates';
+import { isDecember, isJanuary, isValidDate, today } from './dates';
 import { isValidPaymentSchedule } from './payments';
 import { isValidPayrollSettings } from './payroll';
 import { PAYROLL_DEFAULTS } from '../data/defaults';
@@ -9,7 +9,7 @@ const isMoney = (value: unknown): value is number => Number.isSafeInteger(value)
 export function isBudgetState(value: unknown): value is BudgetState {
   if (!value || typeof value !== 'object') return false;
   const s = value as BudgetState;
-  if (s.version !== 8 || !['light', 'dark', 'system'].includes(s.themeMode)) return false;
+  if (s.version !== 9 || !['light', 'dark', 'system'].includes(s.themeMode)) return false;
   if (!isValidPayrollSettings(s.payrollSettings)) return false;
   if (!Array.isArray(s.categories) || !Array.isArray(s.expenses) || !Array.isArray(s.salaryHistory)) return false;
   if (!s.categories.every(c => c && typeof c.id === 'string' && c.id.length > 0 && typeof c.name === 'string'
@@ -23,7 +23,10 @@ export function isBudgetState(value: unknown): value is BudgetState {
   if (!Array.isArray(s.fixedExpenses) || !s.fixedExpenses.every(expense => expense && typeof expense.id === 'string'
     && expense.id.length > 0 && typeof expense.name === 'string' && expense.name.trim().length > 0
     && isMoney(expense.amountCents) && expense.amountCents > 0 && ids.has(expense.categoryId)
-    && (expense.payFortnight === 1 || expense.payFortnight === 2))) return false;
+    && (expense.payFortnight === 1 || expense.payFortnight === 2)
+    && (expense.startsOn === undefined || (typeof expense.startsOn === 'string' && isValidDate(expense.startsOn)))
+    && (expense.paymentDay === undefined || expense.paymentDay === null
+      || (Number.isInteger(expense.paymentDay) && expense.paymentDay >= 1 && expense.paymentDay <= 31)))) return false;
   if (new Set(s.fixedExpenses.map(expense => expense.id)).size !== s.fixedExpenses.length) return false;
   if (!s.salaryHistory.length || !s.salaryHistory.every(e => e && typeof e.from === 'string'
     && isValidDate(e.from) && isMoney(e.amountCents))) return false;
@@ -67,6 +70,15 @@ export function migrateBudget(value: unknown): BudgetState {
     const fixedExpenses = Array.isArray(previousState.fixedExpenses)
       ? previousState.fixedExpenses.map(expense => ({ ...(expense as Record<string, unknown>), payFortnight: 1 })) : [];
     candidate = { ...candidate, version: 8, fixedExpenses };
+  }
+  if (candidate && typeof candidate === 'object' && 'version' in candidate && candidate.version === 8) {
+    const previousState = candidate as Record<string, unknown>;
+    const fixedExpenses = Array.isArray(previousState.fixedExpenses)
+      ? previousState.fixedExpenses.map(expense => {
+        const fixed = expense as Record<string, unknown>;
+        return { ...fixed, startsOn: typeof fixed.startsOn === 'string' && isValidDate(fixed.startsOn) ? fixed.startsOn : today() };
+      }) : [];
+    candidate = { ...candidate, version: 9, fixedExpenses };
   }
   if (!isBudgetState(candidate)) throw new Error('Los datos guardados no tienen el formato esperado.');
   return candidate;

@@ -30,18 +30,19 @@ export function ConfirmDelete({ visible, title, description, onCancel, onConfirm
 }) {
   return <ModalSheet visible={visible} title={title} onClose={onCancel}>
     <AppText>{description}</AppText>
-    <Button title="Sí, eliminar" variant="danger" onPress={onConfirm} />
-    <Button title="Cancelar" variant="secondary" onPress={onCancel} />
+    <Button title="Sí, eliminar" variant="primary" onPress={onConfirm} />
+    <Button title="Cancelar" variant="danger" onPress={onCancel} />
   </ModalSheet>;
 }
 
-export function ConfirmAction({ visible, title, description, confirmTitle, confirmVariant = 'primary', onCancel, onConfirm }: {
+export function ConfirmAction({ visible, title, description, confirmTitle, confirmVariant = 'primary', cancelVariant = 'danger', onCancel, onConfirm }: {
   visible: boolean; title: string; description: string; confirmTitle: string;
-  confirmVariant?: 'primary' | 'secondary' | 'danger'; onCancel: () => void; onConfirm: () => void;
+  confirmVariant?: 'primary' | 'secondary' | 'danger'; cancelVariant?: 'primary' | 'secondary' | 'danger';
+  onCancel: () => void; onConfirm: () => void;
 }) {
   return <ModalSheet visible={visible} title={title} onClose={onCancel}>
     <AppText>{description}</AppText>
     <Button title={confirmTitle} variant={confirmVariant} onPress={onConfirm} />
-    <Button title="Cancelar" variant="secondary" onPress={onCancel} />
+    <Button title="Cancelar" variant={cancelVariant} onPress={onCancel} />
   </ModalSheet>;
 }

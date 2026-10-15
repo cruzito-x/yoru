@@ -6,7 +6,7 @@ export const themes = {
     brand: '#142B4C', primary: '#142B4C', primarySoft: '#E4ECF7', onPrimary: '#FFFFFF',
     logoBackground: '#FFFDF7',
     balance: '#3F638D',
-    success: '#367553', danger: '#B3473F', dangerSoft: '#F9E8E4',
+    success: '#367553', danger: '#A8433D', dangerSoft: '#F7E8E6',
     track: '#DFE6F0', overlay: 'rgba(10,20,38,0.48)',
   },
   dark: {
@@ -15,7 +15,7 @@ export const themes = {
     brand: '#142B4C', primary: '#A7C4EB', primarySoft: '#203552', onPrimary: '#FFFFFF',
     logoBackground: '#FFFDF7',
     balance: '#89A8D5',
-    success: '#98CCA7', danger: '#F0988B', dangerSoft: '#402824',
+    success: '#98CCA7', danger: '#E18B84', dangerSoft: '#39282D',
     track: '#2E405D', overlay: 'rgba(0,0,0,0.65)',
   },
 };

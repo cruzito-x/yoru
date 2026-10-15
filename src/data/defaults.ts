@@ -6,7 +6,7 @@ export const PAYROLL_DEFAULTS: PayrollSettings = { monthlySalaryCents: 50000, se
 // Categorías iniciales, SIN gastos de ejemplo ni pagos ficticios.
 export function initialBudget(): BudgetState {
   return {
-    version: 8,
+    version: 9,
     categories: [
       { id: 'food', name: 'Alimentación', color: '#C56839' },
       { id: 'transport', name: 'Transporte', color: '#5472AE' },
