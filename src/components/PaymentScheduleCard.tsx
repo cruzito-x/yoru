@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Platform, Pressable, View } from 'react-native';
 import { useBudget } from '../context/BudgetContext';
 import { useTheme } from '../theme/useTheme';
 import { PaymentDay, PaymentSchedule } from '../types/budget';
@@ -21,6 +21,7 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
   const [activeSlot, setActiveSlot] = useState<'first' | 'second'>('first');
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const savedOpacity = useRef(new Animated.Value(0)).current;
   const [upcomingExpanded, setUpcomingExpanded] = useState(false);
   const [confirmSave, setConfirmSave] = useState(false);
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
@@ -29,6 +30,23 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
   const draft = isValidPaymentSchedule(candidate) ? candidate : null;
   const upcoming = upcomingPayments(state.paymentSchedule, currentDay);
   const dirty = !!state.paymentSchedule && (candidate.first !== state.paymentSchedule.first || candidate.second !== state.paymentSchedule.second);
+
+  useEffect(() => {
+    if (!saved) {
+      savedOpacity.setValue(0);
+      return;
+    }
+    savedOpacity.setValue(1);
+    let fadeOut: Animated.CompositeAnimation | undefined;
+    const timeout = setTimeout(() => {
+      fadeOut = Animated.timing(savedOpacity, { toValue: 0, duration: 500, useNativeDriver: Platform.OS !== 'web' });
+      fadeOut.start(({ finished }) => { if (finished) setSaved(false); });
+    }, 10_000);
+    return () => {
+      clearTimeout(timeout);
+      fadeOut?.stop();
+    };
+  }, [saved, savedOpacity]);
 
   function changed() { setSaved(false); setError(''); }
   function save() {
@@ -58,15 +76,17 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
         style={activeSlot === 'second' ? { borderColor: colors.primary, borderWidth: 2 } : undefined}
         onFocus={() => setActiveSlot('second')} onChangeText={value => { setSecond(value); changed(); }} /></View>
     </View>
-    <AppText style={{ fontSize: 13, fontWeight: '600' }}>¿Cómo quieres definir el segundo pago?</AppText>
-    <Segmented options={[{ value: 'number', label: 'Día fijo' }, { value: 'last', label: 'Fin de mes' }]}
-      value={secondUsesLastDay ? 'last' : 'number'} onChange={value => { setSecondUsesLastDay(value === 'last'); if (value === 'number' && !second) setSecond('30'); changed(); }} />
-    <AppText variant="muted" style={{ fontSize: 12 }}>
-      {secondUsesLastDay ? 'El segundo pago se ajustará al último día de cada mes.' : `El segundo pago se repetirá el día ${second || 'que elijas'} de cada mes.`}
-    </AppText>
     <AppText style={{ fontSize: 13, fontWeight: '600' }}>¿Qué pago quieres ajustar en el calendario?</AppText>
     <Segmented options={[{ value: 'first', label: 'Primer pago' }, { value: 'second', label: 'Segundo pago' }]}
       value={activeSlot} onChange={setActiveSlot} />
+    {activeSlot === 'second' && <>
+      <AppText style={{ fontSize: 13, fontWeight: '600' }}>¿Cómo quieres definir el segundo pago?</AppText>
+      <Segmented options={[{ value: 'number', label: 'Día fijo' }, { value: 'last', label: 'Fin de mes' }]}
+        value={secondUsesLastDay ? 'last' : 'number'} onChange={value => { setSecondUsesLastDay(value === 'last'); if (value === 'number' && !second) setSecond('30'); changed(); }} />
+      <AppText variant="muted" style={{ fontSize: 12 }}>
+        {secondUsesLastDay ? 'El segundo pago se ajustará al último día de cada mes.' : `El segundo pago se repetirá el día ${second || 'que elijas'} de cada mes.`}
+      </AppText>
+    </>}
     <AppText variant="muted" style={{ fontSize: 12 }}>Toca una fecha para cambiar el {activeSlot === 'first' ? 'primer' : 'segundo'} pago. Esta selección se repetirá cada mes.</AppText>
     <Calendar currentDay={currentDay} schedule={draft} onSelect={date => {
       if (activeSlot === 'first') setFirst(String(Number(date.slice(8))));
@@ -74,9 +94,20 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
       changed();
     }} />
     <AppText variant="muted" style={{ fontSize: 11 }}>Vista previa de tus días. Si eliges 29, 30 o 31, en meses más cortos se usará el último día.</AppText>
-    <Button title="Guardar calendario de pagos" icon="check" onPress={save} />
+    <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Button title="Guardar calendario" icon="check" onPress={save} />
+      </View>
+      {!!state.paymentSchedule && <View style={{ flex: 1, minWidth: 0 }}>
+        <Button title="Desactivar calendario" icon="close" variant="danger" onPress={() => setConfirmDeactivate(true)} />
+      </View>}
+    </View>
     {!!error && <AppText accessibilityRole="alert" style={{ color: colors.danger }}>{error}</AppText>}
-    {saved && <AppText accessibilityRole="alert" style={{ color: colors.success, fontSize: 13 }}>Calendario guardado. Los próximos pagos se actualizan automáticamente.</AppText>}
+    {saved && <Animated.View style={{ opacity: savedOpacity }}>
+      <AppText accessibilityRole="alert" accessibilityLiveRegion="polite" style={{ color: colors.success, fontSize: 13 }}>
+        Calendario guardado. Los próximos pagos se actualizan automáticamente.
+      </AppText>
+    </Animated.View>}
     {dirty && <AppText variant="muted" style={{ fontSize: 12 }}>Tienes cambios sin guardar. La lista siguiente usa tu calendario guardado.</AppText>}
     {!!state.paymentSchedule && <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 16, overflow: 'hidden' }}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${upcomingExpanded ? 'Ocultar' : 'Mostrar'} próximos pagos`}
@@ -99,7 +130,6 @@ export function PaymentScheduleCard({ currentDay }: { currentDay: string }) {
         </View>)}
       </View>}
     </View>}
-    {!!state.paymentSchedule && <Button title="Desactivar calendario de pagos" icon="close" variant="danger" onPress={() => setConfirmDeactivate(true)} />}
     <ConfirmAction visible={confirmSave} title="¿Guardar calendario de pagos?"
       description={`Se repetirán el día ${draft?.first ?? candidate.first} y ${secondUsesLastDay ? 'el último día del mes' : `el día ${second}`} cada mes. Si un pago cae en fin de semana, se adelantará al viernes.`}
       confirmTitle="Sí, guardar calendario" onCancel={() => setConfirmSave(false)} onConfirm={saveConfirmed} />

@@ -11,6 +11,7 @@ import { SpecialIncomeTabs } from '../components/SpecialIncomeTabs';
 import { FixedExpensesCard } from '../components/FixedExpensesCard';
 import { useToday } from '../hooks/useToday';
 import { BRAND } from '../config/brand';
+import { AppFooter } from '../components/AppFooter';
 
 const themeOptions: { value: ThemeMode; label: string }[] = [
   { value: 'light', label: 'Claro' }, { value: 'dark', label: 'Oscuro' }, { value: 'system', label: 'Sistema' },
@@ -32,6 +33,9 @@ export function SettingsScreen() {
       <AppText variant="muted">Elige un tema o deja que siga la apariencia de tu teléfono.</AppText>
       <Segmented options={themeOptions} value={state.themeMode} onChange={mode => dispatch({ type: 'SET_THEME', mode })} />
     </Card>
-    <AppText variant="label" style={{ textAlign: 'center', paddingVertical: 6 }}>{BRAND.wordmark} · VERSIÓN {BRAND.version}</AppText>
+    <View style={{ alignItems: 'center', gap: 2, paddingVertical: 6 }}>
+      <AppText variant="label">{BRAND.wordmark} · VERSIÓN {BRAND.version}</AppText>
+      <AppFooter />
+    </View>
   </Screen>;
 }

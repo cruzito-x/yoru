@@ -15,9 +15,9 @@ const tabs: { id: Tab; label: string; icon: IconName }[] = [
 export function BottomTabs({ active, onChange }: { active: Tab; onChange: (tab: Tab) => void }) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  return <View style={{ borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
-    paddingTop: 8, paddingBottom: Math.max(insets.bottom, 12), paddingHorizontal: 12, alignItems: 'center' }}>
-    <View style={{ flexDirection: 'row', width: '100%', maxWidth: 680, gap: 6 }}>
+  return <View style={{ borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, alignItems: 'center' }}>
+    <View style={{ width: '100%', maxWidth: 680, flexDirection: 'row', gap: 6, paddingHorizontal: 12,
+      paddingTop: 8, paddingBottom: Math.max(insets.bottom, 12) }}>
       {tabs.map(tab => {
         const selected = active === tab.id;
         return <Pressable key={tab.id} accessibilityRole="tab" accessibilityLabel={tab.label}

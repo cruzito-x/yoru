@@ -75,7 +75,9 @@ export function Field({ label, hint, style, ...props }: TextInputProps & { label
 export function Screen({ children }: { children: React.ReactNode }) {
   return <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 22, paddingBottom: 34, alignItems: 'center' }}>
-      <View style={{ width: '100%', maxWidth: 680, gap: 22 }}>{children}</View>
+      <View style={{ width: '100%', maxWidth: 680, gap: 22 }}>
+        {children}
+      </View>
     </ScrollView>
   </KeyboardAvoidingView>;
 }
