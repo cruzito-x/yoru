@@ -23,12 +23,12 @@ export function BottomTabs({ active, onChange }: { active: Tab; onChange: (tab: 
         return <Pressable key={tab.id} accessibilityRole="tab" accessibilityLabel={tab.label}
           accessibilityState={{ selected }} aria-selected={selected} onPress={() => onChange(tab.id)}
           android_ripple={{ color: colors.primarySoft, borderless: false }}
-          style={({ pressed }) => ({ flex: 1, minWidth: 0, minHeight: 57, gap: 5,
+          style={({ pressed }) => ({ flex: 1, minWidth: 0, minHeight: 60, gap: 5,
             paddingVertical: 8, borderRadius: 18, overflow: 'hidden',
             backgroundColor: selected || pressed ? colors.primarySoft : 'transparent',
             alignItems: 'center', justifyContent: 'center' })}>
           <Icon name={tab.icon} color={selected ? colors.primary : colors.muted} size={21} />
-          <AppText style={{ fontSize: 10, lineHeight: 14, fontWeight: selected ? '700' : '500', color: selected ? colors.primary : colors.muted }}>{tab.label}</AppText>
+          <AppText style={{ fontSize: 11, lineHeight: 15, fontWeight: selected ? '700' : '500', color: selected ? colors.primary : colors.muted }}>{tab.label}</AppText>
         </Pressable>;
       })}
     </View>

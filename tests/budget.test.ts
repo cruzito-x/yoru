@@ -50,13 +50,13 @@ test('Planilla: configuración persistente sin modificar sueldo ni ingresos regi
   assert.equal(budgetReducer(changed, { type: 'SET_PAYROLL', settings: { monthlySalaryCents: 0, serviceMonths: 36, travelAllowanceCents: 0 } }), changed);
 });
 
-test('Migración v4 a v6: conserva registros históricos e inicializa viáticos', () => {
+test('Migración v4 a v8: conserva registros históricos e inicializa datos nuevos', () => {
   const { payrollSettings, ...previous } = initialBudget();
-  const legacy = { ...previous, version: 4, expenses,
+  const legacy = { ...previous, version: 4, fixedExpenses: undefined, expenses,
     annualBonuses: [{ year: 2026, date: '2026-12-15', amountCents: 20000 }],
     quincena25Entries: [{ year: 2026, date: '2026-01-15', amountCents: 15000 }], themeMode: 'dark' };
   const migrated = migrateBudget(JSON.parse(JSON.stringify(legacy)));
-  assert.equal(migrated.version, 6);
+  assert.equal(migrated.version, 8);
   assert.deepEqual(migrated.payrollSettings, { monthlySalaryCents: 50000, serviceMonths: 18, travelAllowanceCents: 15000 });
   for (const key of ['expenses', 'categories', 'salaryHistory', 'themeMode', 'annualBonuses', 'quincena25Entries'] as const) {
     assert.deepEqual(migrated[key], legacy[key]);
@@ -168,12 +168,12 @@ test('Ingresos unificados: un campo inválido impide cualquier cambio parcial', 
     payroll: validPayroll }).salaryHistory, '2026-10-15'), 0);
 });
 
-test('Migración v3 y persistencia v6: mantiene gastos, pagos, sueldo, tema y aguinaldos', () => {
+test('Migración v3 y persistencia v8: mantiene gastos, pagos, sueldo, tema y aguinaldos', () => {
   const { quincena25Entries, ...original } = initialBudget();
   const previous = { ...original, version: 3, expenses, themeMode: 'dark', paymentSchedule: { first: 15, second: 'last' },
     annualBonuses: [{ year: 2026, date: '2026-12-15', amountCents: 15000 }] };
   const migrated = migrateBudget(JSON.parse(JSON.stringify(previous)));
-  assert.equal(migrated.version, 6);
+  assert.equal(migrated.version, 8);
   assert.deepEqual(migrated.quincena25Entries, []);
   for (const key of ['expenses', 'categories', 'salaryHistory', 'themeMode', 'paymentSchedule', 'annualBonuses'] as const) {
     assert.deepEqual(migrated[key], previous[key]);
@@ -367,7 +367,7 @@ test('Migración: los datos de la versión 1 conservan gastos, sueldo y tema', (
   const { nextPaymentDate, annualBonuses, paymentSchedule, ...common } = original;
   const legacy = { ...common, version: 1 };
   const migrated = migrateBudget(JSON.parse(JSON.stringify(legacy)));
-  assert.equal(migrated.version, 6);
+  assert.equal(migrated.version, 8);
   assert.deepEqual(migrated.expenses, expenses);
   assert.deepEqual(migrated.categories, original.categories);
   assert.deepEqual(migrated.salaryHistory, original.salaryHistory);
@@ -456,7 +456,7 @@ test('Migración de versión 2: conserva fecha única, aguinaldo y gastos', () =
   const old = { ...common, version: 2, nextPaymentDate: '2026-11-15', expenses,
     annualBonuses: [{ year: 2025, date: '2025-12-15', amountCents: 25000 }] };
   const migrated = migrateBudget(old);
-  assert.equal(migrated.version, 6);
+  assert.equal(migrated.version, 8);
   assert.equal(migrated.paymentSchedule, null);
   assert.equal(migrated.nextPaymentDate, old.nextPaymentDate);
   assert.deepEqual(migrated.annualBonuses, old.annualBonuses);

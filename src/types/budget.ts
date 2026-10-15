@@ -17,6 +17,14 @@ export interface Expense {
   note: string;
 }
 
+export interface FixedExpense {
+  id: string;
+  name: string;
+  amountCents: number;
+  categoryId: string;
+  payFortnight: 1 | 2;
+}
+
 export interface SalaryEntry {
   from: string; // Primera quincena a la que aplica este sueldo.
   amountCents: number;
@@ -56,9 +64,10 @@ export interface ScheduledPayment {
 }
 
 export interface BudgetState {
-  version: 6;
+  version: 8;
   categories: Category[];
   expenses: Expense[];
+  fixedExpenses: FixedExpense[];
   salaryHistory: SalaryEntry[];
   payrollSettings: PayrollSettings;
   themeMode: ThemeMode;

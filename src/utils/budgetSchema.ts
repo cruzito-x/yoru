@@ -9,7 +9,7 @@ const isMoney = (value: unknown): value is number => Number.isSafeInteger(value)
 export function isBudgetState(value: unknown): value is BudgetState {
   if (!value || typeof value !== 'object') return false;
   const s = value as BudgetState;
-  if (s.version !== 6 || !['light', 'dark', 'system'].includes(s.themeMode)) return false;
+  if (s.version !== 8 || !['light', 'dark', 'system'].includes(s.themeMode)) return false;
   if (!isValidPayrollSettings(s.payrollSettings)) return false;
   if (!Array.isArray(s.categories) || !Array.isArray(s.expenses) || !Array.isArray(s.salaryHistory)) return false;
   if (!s.categories.every(c => c && typeof c.id === 'string' && c.id.length > 0 && typeof c.name === 'string'
@@ -20,6 +20,11 @@ export function isBudgetState(value: unknown): value is BudgetState {
     && isMoney(e.amountCents) && e.amountCents > 0 && ids.has(e.categoryId)
     && typeof e.date === 'string' && isValidDate(e.date) && typeof e.note === 'string')) return false;
   if (new Set(s.expenses.map(e => e.id)).size !== s.expenses.length) return false;
+  if (!Array.isArray(s.fixedExpenses) || !s.fixedExpenses.every(expense => expense && typeof expense.id === 'string'
+    && expense.id.length > 0 && typeof expense.name === 'string' && expense.name.trim().length > 0
+    && isMoney(expense.amountCents) && expense.amountCents > 0 && ids.has(expense.categoryId)
+    && (expense.payFortnight === 1 || expense.payFortnight === 2))) return false;
+  if (new Set(s.fixedExpenses.map(expense => expense.id)).size !== s.fixedExpenses.length) return false;
   if (!s.salaryHistory.length || !s.salaryHistory.every(e => e && typeof e.from === 'string'
     && isValidDate(e.from) && isMoney(e.amountCents))) return false;
   if (s.nextPaymentDate !== null && (typeof s.nextPaymentDate !== 'string' || !isValidDate(s.nextPaymentDate))) return false;
@@ -53,6 +58,15 @@ export function migrateBudget(value: unknown): BudgetState {
     const existingSettings = 'payrollSettings' in candidate && candidate.payrollSettings && typeof candidate.payrollSettings === 'object'
       ? candidate.payrollSettings as Partial<PayrollSettings> : {};
     candidate = { ...candidate, version: 6, payrollSettings: { ...PAYROLL_DEFAULTS, ...existingSettings } };
+  }
+  if (candidate && typeof candidate === 'object' && 'version' in candidate && candidate.version === 6) {
+    candidate = { ...candidate, version: 7, fixedExpenses: [] };
+  }
+  if (candidate && typeof candidate === 'object' && 'version' in candidate && candidate.version === 7) {
+    const previousState = candidate as Record<string, unknown>;
+    const fixedExpenses = Array.isArray(previousState.fixedExpenses)
+      ? previousState.fixedExpenses.map(expense => ({ ...(expense as Record<string, unknown>), payFortnight: 1 })) : [];
+    candidate = { ...candidate, version: 8, fixedExpenses };
   }
   if (!isBudgetState(candidate)) throw new Error('Los datos guardados no tienen el formato esperado.');
   return candidate;

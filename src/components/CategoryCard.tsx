@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import { Category, Expense } from '../types/budget';
 import { useTheme } from '../theme/useTheme';
@@ -8,13 +8,16 @@ import { AppText, Card, IconButton } from './ui';
 import { Icon } from './Icon';
 import { CategoryExpenseList } from './CategoryExpenseList';
 
-export function CategoryCard({ category, expenses, expanded, cardMinHeight, onToggleExpenses, onAdd, onEditCategory, onEditExpense }: {
+export function CategoryCard({ category, expenses, expanded, onToggleExpenses, onAdd, onEditCategory, onEditExpense,
+  ordering, onDragStart, onDragMove, onDragEnd }: {
   onAdd: () => void; onEditCategory: () => void; onEditExpense: (expense: Expense) => void;
-  expanded: boolean; cardMinHeight?: number; onToggleExpenses: () => void;
+  expanded: boolean; onToggleExpenses: () => void;
+  ordering: boolean; onDragStart: () => void; onDragMove: (offset: number) => void; onDragEnd: (offset: number) => void;
   category: Category; expenses: Expense[];
 }) {
   const { colors } = useTheme();
-  return <Card style={{ padding: 16, gap: 8, minHeight: cardMinHeight, flexDirection: 'column' }}>
+  const dragStartY = useRef(0);
+  return <Card style={{ padding: 16, gap: 8, flexDirection: 'column' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 0 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`}
         accessibilityState={{ expanded }} aria-expanded={expanded} onPress={onToggleExpenses}
@@ -26,19 +29,29 @@ export function CategoryCard({ category, expenses, expanded, cardMinHeight, onTo
         </View>
       </Pressable>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 0 }}>
-        <IconButton compact name={expanded ? 'up' : 'down'} label={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`} onPress={onToggleExpenses} />
-        <IconButton compact name="moreVertical" label={`Editar categoría ${category.name}`} onPress={onEditCategory} />
+        {ordering
+          ? <Pressable accessibilityRole="button" accessibilityLabel={`Arrastrar para ordenar ${category.name}`}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={event => { dragStartY.current = event.nativeEvent.pageY; onDragStart(); }}
+            onResponderMove={event => onDragMove(event.nativeEvent.pageY - dragStartY.current)}
+            onResponderRelease={event => onDragEnd(event.nativeEvent.pageY - dragStartY.current)}
+            onResponderTerminate={() => onDragEnd(0)}
+            style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 }}>
+            <Icon name="gripVertical" color={colors.muted} size={20} />
+          </Pressable>
+          : <IconButton compact name={expanded ? 'up' : 'down'} label={`${expanded ? 'Ocultar' : 'Mostrar'} gastos de ${category.name}`} onPress={onToggleExpenses} />}
+        {!ordering && <IconButton compact name="moreVertical" label={`Editar categoría ${category.name}`} onPress={onEditCategory} />}
       </View>
     </View>
     {expanded && (expenses.length > 0
       ? <CategoryExpenseList category={category} expenses={expenses} onEdit={onEditExpense} />
-      : <View style={{ flex: 1, justifyContent: 'center' }}>
+      : <View style={{ paddingVertical: 20 }}>
         <AppText variant="muted" style={{ textAlign: 'center' }}>Sin gastos en esta quincena.</AppText>
       </View>)}
     <Pressable accessibilityRole="button" accessibilityLabel={`Añadir gasto en ${category.name}`} onPress={onAdd}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 44,
         borderRadius: 12, backgroundColor: pressed ? colors.primarySoft : colors.surfaceAlt })}>
-      <Icon name="plus" color={colors.primary} size={16} /><AppText style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>Añadir gasto</AppText>
+      <Icon name="plus" color={colors.primary} size={17} /><AppText style={{ color: colors.primary, fontSize: 14, fontWeight: '600' }}>Añadir gasto</AppText>
     </Pressable>
   </Card>;
 }

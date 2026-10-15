@@ -20,7 +20,8 @@ export function CategoryForm({ category, onClose }: { category?: Category; onClo
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteBlocked, setDeleteBlocked] = useState(false);
   const [confirmSave, setConfirmSave] = useState(false);
-  const used = !!category && state.expenses.some(e => e.categoryId === category.id);
+  const used = !!category && (state.expenses.some(e => e.categoryId === category.id)
+    || state.fixedExpenses.some(e => e.categoryId === category.id));
 
   function save() {
     if (!name.trim()) return setError('Escribe un nombre para la categoría.');
@@ -72,7 +73,8 @@ export function CategoryForm({ category, onClose }: { category?: Category; onClo
       onCancel={() => setConfirmSave(false)} onConfirm={saveConfirmed} />
     <ConfirmDelete visible={confirmDelete} title="¿Eliminar categoría?" description={`Se eliminará “${category?.name ?? ''}”.`}
       onCancel={() => setConfirmDelete(false)} onConfirm={() => {
-        if (category && state.expenses.some(e => e.categoryId === category.id)) {
+        if (category && (state.expenses.some(e => e.categoryId === category.id)
+          || state.fixedExpenses.some(e => e.categoryId === category.id))) {
           setConfirmDelete(false);
           setDeleteBlocked(true);
           return;

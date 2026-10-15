@@ -15,6 +15,8 @@ const paths = {
   up: 'm6 15 6-6 6 6',
   edit: 'm14 4 6 6M4 20l1-5L16 4l4 4L9 19l-5 1Z',
   moreVertical: 'M12 5.5v.01m0 6.49v.01m0 6.49v.01',
+  gripVertical: 'M9 5h.01M9 12h.01M9 19h.01M15 5h.01M15 12h.01M15 19h.01',
+  search: 'm20 20-4.4-4.4M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7',
   close: 'm6 6 12 12M6 18 18 6',
   check: 'm5 12 4 4L19 6',

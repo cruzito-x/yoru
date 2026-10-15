@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon';
 import { PaymentScheduleCard } from '../components/PaymentScheduleCard';
 import { PayrollCard } from '../components/PayrollCard';
 import { SpecialIncomeTabs } from '../components/SpecialIncomeTabs';
+import { FixedExpensesCard } from '../components/FixedExpensesCard';
 import { useToday } from '../hooks/useToday';
 import { BRAND } from '../config/brand';
 
@@ -25,6 +26,7 @@ export function SettingsScreen() {
     <PayrollCard currentDay={currentDay} />
     <PaymentScheduleCard currentDay={currentDay} />
     <SpecialIncomeTabs currentDay={currentDay} />
+    <FixedExpensesCard />
     <Card style={{ gap: 17 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Icon name={isDark ? 'moon' : 'sun'} color={colors.primary} /><AppText variant="heading">Apariencia</AppText></View>
       <AppText variant="muted">Elige un tema o deja que siga la apariencia de tu teléfono.</AppText>

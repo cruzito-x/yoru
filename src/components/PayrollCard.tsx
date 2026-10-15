@@ -4,8 +4,7 @@ import { useBudget } from '../context/BudgetContext';
 import { useTheme } from '../theme/useTheme';
 import { money, moneyInput, parseMoney, sanitizeMoneyInput } from '../utils/money';
 import { calculateFortnightPayroll, isValidPayrollSettings } from '../utils/payroll';
-import { fortnight, rangeLabel } from '../utils/dates';
-import { DateRange } from '../types/budget';
+import { fortnight } from '../utils/dates';
 import { Icon } from './Icon';
 import { AppText, Button, Card, Field, Segmented } from './ui';
 import { ConfirmAction } from './ModalSheet';
@@ -17,10 +16,10 @@ const incomeTabs: { value: 'income' | 'payroll'; label: string }[] = [
 
 export function PayrollCard({ currentDay }: { currentDay: string }) {
   const range = fortnight(currentDay);
-  return <IncomeForm key={range.start} range={range} />;
+  return <IncomeForm key={range.start} />;
 }
 
-function IncomeForm({ range }: { range: DateRange }) {
+function IncomeForm() {
   const { state, dispatch } = useBudget();
   const { colors } = useTheme();
   const [tab, setTab] = useState<'income' | 'payroll'>('income');
@@ -106,7 +105,6 @@ function IncomeForm({ range }: { range: DateRange }) {
           </View>}
         </View>
       </View>}
-      <AppText variant="muted" style={{ fontSize: 11 }}>Cálculo estimado con las tasas y tabla ordinaria vigentes. El recibo puede variar por redondeos o recálculos de planilla.</AppText>
     </View> : <View style={{ gap: 16 }}>
       <Field label="Sueldo mensual bruto en planilla (USD)" value={salary} keyboardType="decimal-pad" maxLength={9}
         placeholder="500.00" hint="Antes de descuentos; base del aguinaldo y la Quincena 25."
@@ -162,9 +160,6 @@ function IncomeForm({ range }: { range: DateRange }) {
       {saved && !dirty && <AppText accessibilityRole="alert" style={{ color: colors.success }}>Planilla guardada.</AppText>}
       {dirty && <AppText variant="muted" style={{ fontSize: 12 }}>Tienes cambios sin guardar.</AppText>}
     </>}
-    <AppText variant="muted" style={{ fontSize: 11 }}>
-      {dirty ? 'Vista previa: guarda la planilla para aplicar estos cambios' : 'Disponible por quincena calculado desde la planilla guardada'} · {rangeLabel(range)}.
-    </AppText>
   </Card>;
 }
 

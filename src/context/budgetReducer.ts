@@ -1,4 +1,4 @@
-import { AnnualBonus, BudgetState, Category, Expense, PaymentSchedule, PayrollSettings, Quincena25Entry, SalaryEntry, ThemeMode } from '../types/budget';
+import { AnnualBonus, BudgetState, Category, Expense, FixedExpense, PaymentSchedule, PayrollSettings, Quincena25Entry, SalaryEntry, ThemeMode } from '../types/budget';
 import { isDecember, isJanuary, isQuincena25PaymentDate, isValidDate } from '../utils/dates';
 import { isValidPaymentSchedule } from '../utils/payments';
 import { isValidPayrollSettings } from '../utils/payroll';
@@ -7,9 +7,13 @@ import { salaryAt } from '../utils/budget';
 export type BudgetAction =
   | { type: 'LOAD'; state: BudgetState }
   | { type: 'SAVE_CATEGORY'; category: Category }
+  | { type: 'MOVE_CATEGORY'; id: string; direction: -1 | 1 }
+  | { type: 'MOVE_CATEGORY_TO_INDEX'; id: string; index: number }
   | { type: 'DELETE_CATEGORY'; id: string }
   | { type: 'SAVE_EXPENSE'; expense: Expense }
   | { type: 'DELETE_EXPENSE'; id: string }
+  | { type: 'SAVE_FIXED_EXPENSE'; expense: FixedExpense }
+  | { type: 'DELETE_FIXED_EXPENSE'; id: string }
   | { type: 'SET_SALARY'; entry: SalaryEntry }
   | { type: 'SET_PAYROLL'; settings: PayrollSettings }
   | { type: 'SET_INCOME_SETTINGS'; salary: SalaryEntry; payroll: PayrollSettings }
@@ -28,9 +32,27 @@ export function budgetReducer(state: BudgetState, action: BudgetAction): BudgetS
         ? state.categories.map(c => c.id === action.category.id ? action.category : c)
         : [...state.categories, action.category],
     };
+    case 'MOVE_CATEGORY': {
+      const index = state.categories.findIndex(category => category.id === action.id);
+      const target = index + action.direction;
+      if (index < 0 || target < 0 || target >= state.categories.length) return state;
+      const categories = [...state.categories];
+      [categories[index], categories[target]] = [categories[target], categories[index]];
+      return { ...state, categories };
+    }
+    case 'MOVE_CATEGORY_TO_INDEX': {
+      const index = state.categories.findIndex(category => category.id === action.id);
+      const target = Math.max(0, Math.min(action.index, state.categories.length - 1));
+      if (index < 0 || target === index) return state;
+      const categories = [...state.categories];
+      const [category] = categories.splice(index, 1);
+      categories.splice(target, 0, category);
+      return { ...state, categories };
+    }
     case 'DELETE_CATEGORY':
       // Eliminar una categoría utilizada rompería el historial.
-      if (state.expenses.some(e => e.categoryId === action.id)) return state;
+      if (state.expenses.some(e => e.categoryId === action.id)
+        || state.fixedExpenses.some(e => e.categoryId === action.id)) return state;
       return { ...state, categories: state.categories.filter(c => c.id !== action.id) };
     case 'SAVE_EXPENSE':
       if (!state.categories.some(c => c.id === action.expense.categoryId)) return state;
@@ -41,6 +63,16 @@ export function budgetReducer(state: BudgetState, action: BudgetAction): BudgetS
           : [...state.expenses, action.expense],
       };
     case 'DELETE_EXPENSE': return { ...state, expenses: state.expenses.filter(e => e.id !== action.id) };
+    case 'SAVE_FIXED_EXPENSE':
+      if (!state.categories.some(category => category.id === action.expense.categoryId)
+        || !action.expense.name.trim() || !Number.isSafeInteger(action.expense.amountCents)
+        || action.expense.amountCents <= 0 || action.expense.amountCents > 99999999
+        || (action.expense.payFortnight !== 1 && action.expense.payFortnight !== 2)) return state;
+      return { ...state, fixedExpenses: state.fixedExpenses.some(expense => expense.id === action.expense.id)
+        ? state.fixedExpenses.map(expense => expense.id === action.expense.id ? { ...action.expense } : expense)
+        : [...state.fixedExpenses, { ...action.expense }] };
+    case 'DELETE_FIXED_EXPENSE':
+      return { ...state, fixedExpenses: state.fixedExpenses.filter(expense => expense.id !== action.id) };
     case 'SET_SALARY': return {
       ...state,
       salaryHistory: [...state.salaryHistory.filter(e => e.from !== action.entry.from), action.entry]

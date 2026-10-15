@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
   Text, TextInput, TextInputProps, TextProps, View, ViewProps,
@@ -37,11 +37,11 @@ export function Button({ title, onPress, icon, variant = 'primary', disabled = f
   const foreground = variant === 'primary' ? colors.onPrimary : variant === 'danger' ? colors.danger : colors.primary;
   const background = variant === 'primary' ? colors.brand : variant === 'danger' ? colors.dangerSoft : colors.primarySoft;
   return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled }} aria-disabled={disabled} disabled={disabled}
-    onPress={onPress} style={({ pressed }) => ({ minHeight: 48, borderRadius: 14, paddingHorizontal: 16,
+    onPress={onPress} style={({ pressed }) => ({ minHeight: 52, borderRadius: 14, paddingHorizontal: 16,
       paddingVertical: 11, backgroundColor: background, opacity: disabled ? 0.5 : pressed ? 0.75 : 1,
       alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 })}>
     {icon && <Icon name={icon} color={foreground} size={18} />}
-    <AppText style={{ color: foreground, fontWeight: '600', fontSize: 12, textAlign: 'center' }}>{title}</AppText>
+    <AppText style={{ color: foreground, fontWeight: '600', fontSize: 14, lineHeight: 20, textAlign: 'center' }}>{title}</AppText>
   </Pressable>;
 }
 
@@ -50,7 +50,7 @@ export function IconButton({ name, label, onPress, disabled = false, compact = f
 }) {
   const { colors } = useTheme();
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} aria-disabled={disabled} disabled={disabled}
-    onPress={onPress} style={({ pressed }) => ({ width: compact ? 36 : 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+    hitSlop={compact ? 4 : 0} onPress={onPress} style={({ pressed }) => ({ width: compact ? 36 : 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
       backgroundColor: pressed ? colors.surfaceAlt : 'transparent', opacity: disabled ? 0.35 : 1 })}>
     <Icon name={name} color={colors.text} size={compact ? 18 : 20} />
   </Pressable>;
@@ -58,11 +58,15 @@ export function IconButton({ name, label, onPress, disabled = false, compact = f
 
 export function Field({ label, hint, style, ...props }: TextInputProps & { label: string; hint?: string }) {
   const { colors } = useTheme();
+  const [focused, setFocused] = useState(false);
   return <View style={{ gap: 6 }}>
     <AppText style={{ fontWeight: '600', fontSize: 13 }}>{label}</AppText>
     <TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.muted}
+      onFocus={event => { setFocused(true); props.onFocus?.(event); }}
+      onBlur={event => { setFocused(false); props.onBlur?.(event); }}
       accessibilityState={{ ...props.accessibilityState, disabled: props.editable === false }} aria-disabled={props.editable === false}
-      style={[{ color: props.editable === false ? colors.muted : colors.text, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+      style={[{ color: props.editable === false ? colors.muted : colors.text, backgroundColor: colors.surfaceAlt, borderWidth: focused ? 2 : 1,
+        borderColor: focused ? colors.primary : colors.border,
         borderRadius: 14, padding: 14, fontSize: 16, minHeight: 50 }, style]} />
     {hint && <AppText variant="muted">{hint}</AppText>}
   </View>;
@@ -76,7 +80,7 @@ export function Screen({ children }: { children: React.ReactNode }) {
   </KeyboardAvoidingView>;
 }
 
-export function ScreenHeader({ title, subtitle }: { title: string; subtitle: string }) {
+export function ScreenHeader({ title, subtitle }: { title?: string; subtitle: string }) {
   const { colors } = useTheme();
   return <View style={{ gap: 10, paddingTop: 8 }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -86,7 +90,7 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle: str
       </View>
       <AppText variant="label">USD</AppText>
     </View>
-    <View style={{ gap: 4 }}><AppText variant="title">{title}</AppText><AppText variant="muted">{subtitle}</AppText></View>
+    <View style={{ gap: 4 }}>{title ? <AppText variant="title">{title}</AppText> : null}<AppText variant="muted">{subtitle}</AppText></View>
   </View>;
 }
 
@@ -97,8 +101,8 @@ export function Segmented<T extends string>({ options, value, onChange }: {
   return <View style={{ flexDirection: 'row', backgroundColor: colors.surfaceAlt, padding: 4, borderRadius: 16, gap: 4 }}>
     {options.map(option => <Pressable key={option.value} accessibilityRole="button" accessibilityLabel={option.label}
       accessibilityState={{ selected: value === option.value }} aria-selected={value === option.value} onPress={() => onChange(option.value)}
-      style={{ flex: 1, minHeight: 44, paddingHorizontal: 3, paddingVertical: 10, justifyContent: 'center', alignItems: 'center',
-        borderRadius: 12, backgroundColor: value === option.value ? colors.surface : 'transparent' }}>
+      style={({ pressed }) => ({ flex: 1, minHeight: 44, paddingHorizontal: 3, paddingVertical: 10, justifyContent: 'center', alignItems: 'center',
+        borderRadius: 12, backgroundColor: value === option.value ? colors.surface : 'transparent', opacity: pressed ? 0.72 : 1 })}>
       <AppText style={{ fontSize: 13, fontWeight: '600', color: value === option.value ? colors.primary : colors.muted }}>{option.label}</AppText>
     </Pressable>)}
   </View>;
